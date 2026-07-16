@@ -1,0 +1,378 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --blanco: #ffffff;
+    --fondo-suave: #fafafa;
+    --morado: #7457ff;
+    --morado-oscuro: #5d3ff0;
+    --morado-claro: #f2efff;
+    --texto: #1d2638;
+    --texto-suave: #687187;
+    --borde: #e8eaf1;
+    --verde: #168357;
+    --verde-claro: #e5fff2;
+    --naranja: #b26a00;
+    --naranja-claro: #fff2dc;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--blanco);
+    color: var(--texto);
+    font-family: Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+}
+
+a {
+    text-decoration: none;
+}
+
+.encabezado {
+    align-items: center;
+    background: var(--blanco);
+    border-bottom: 1px solid var(--borde);
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 8%;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    color: var(--morado);
+    font-size: 26px;
+    font-weight: 800;
+}
+
+.menu {
+    display: flex;
+    gap: 32px;
+}
+
+.menu a {
+    color: #455069;
+    font-size: 14px;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.menu a:hover {
+    color: var(--morado);
+}
+
+.acciones {
+    align-items: center;
+    display: flex;
+    gap: 20px;
+}
+
+.iniciar {
+    color: #455069;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.iniciar:hover {
+    color: var(--morado);
+}
+
+.registrarse {
+    background: var(--morado);
+    border-radius: 10px;
+    color: var(--blanco);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 13px 22px;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.registrarse:hover {
+    background: var(--morado-oscuro);
+    transform: translateY(-2px);
+}
+
+.principal {
+    align-items: center;
+    background: var(--blanco);
+    display: grid;
+    gap: 70px;
+    grid-template-columns: 1fr 1fr;
+    min-height: calc(100vh - 85px);
+    padding: 70px 8%;
+}
+
+.contenido {
+    max-width: 650px;
+}
+
+.etiqueta {
+    background: var(--morado-claro);
+    border-radius: 30px;
+    color: var(--morado);
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    padding: 10px 16px;
+}
+
+.contenido h1 {
+    color: var(--texto);
+    font-size: 58px;
+    letter-spacing: -1.5px;
+    line-height: 1.05;
+    margin-bottom: 24px;
+}
+
+.contenido > p {
+    color: var(--texto-suave);
+    font-size: 20px;
+    line-height: 1.6;
+    max-width: 600px;
+}
+
+.botones {
+    display: flex;
+    gap: 16px;
+    margin: 35px 0;
+}
+
+.boton-principal {
+    background: var(--morado);
+    border: 1px solid var(--morado);
+    border-radius: 10px;
+    color: var(--blanco);
+    font-weight: 700;
+    padding: 14px 24px;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.boton-principal:hover {
+    background: var(--morado-oscuro);
+    transform: translateY(-2px);
+}
+
+.boton-secundario {
+    background: var(--blanco);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    color: #343d52;
+    font-weight: 700;
+    padding: 14px 24px;
+    transition:
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.boton-secundario:hover {
+    border-color: var(--morado);
+    color: var(--morado);
+    transform: translateY(-2px);
+}
+
+.beneficios {
+    color: #5e687d;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    font-size: 14px;
+}
+
+.demostracion {
+    width: 100%;
+}
+
+.tarjeta {
+    background: var(--blanco);
+    border: 1px solid var(--borde);
+    border-radius: 24px;
+    box-shadow: 0 20px 55px rgba(31, 38, 55, 0.1);
+    padding: 30px;
+}
+
+.tarjeta-superior {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.tarjeta-superior small {
+    color: #8991a5;
+}
+
+.tarjeta-superior h2 {
+    color: var(--texto);
+    margin-top: 5px;
+}
+
+.estado {
+    background: var(--verde-claro);
+    border-radius: 20px;
+    color: var(--verde);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 13px;
+}
+
+.estadisticas {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 28px 0;
+}
+
+.estadisticas div {
+    background: var(--fondo-suave);
+    border: 1px solid #f0f1f5;
+    border-radius: 14px;
+    padding: 18px;
+}
+
+.estadisticas strong,
+.estadisticas span {
+    display: block;
+}
+
+.estadisticas strong {
+    color: var(--texto);
+    font-size: 23px;
+    margin-bottom: 5px;
+}
+
+.estadisticas span {
+    color: #7b8498;
+    font-size: 13px;
+}
+
+.cita {
+    align-items: center;
+    border-top: 1px solid var(--borde);
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 55px 1fr auto;
+    padding: 20px 0;
+}
+
+.hora {
+    color: var(--morado);
+    font-weight: 800;
+}
+
+.cita strong {
+    color: var(--texto);
+}
+
+.cita p {
+    color: #858da0;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.confirmada,
+.pendiente {
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 7px 11px;
+}
+
+.confirmada {
+    background: var(--verde-claro);
+    color: var(--verde);
+}
+
+.pendiente {
+    background: var(--naranja-claro);
+    color: var(--naranja);
+}
+
+@media (max-width: 900px) {
+    .menu {
+        display: none;
+    }
+
+    .principal {
+        gap: 45px;
+        grid-template-columns: 1fr;
+        padding-bottom: 60px;
+        padding-top: 50px;
+    }
+
+    .contenido h1 {
+        font-size: 44px;
+    }
+}
+
+@media (max-width: 600px) {
+    .encabezado {
+        padding: 16px 5%;
+    }
+
+    .logo {
+        font-size: 22px;
+    }
+
+    .iniciar {
+        display: none;
+    }
+
+    .registrarse {
+        padding: 11px 16px;
+    }
+
+    .principal {
+        padding: 45px 5%;
+    }
+
+    .contenido h1 {
+        font-size: 36px;
+    }
+
+    .contenido > p {
+        font-size: 17px;
+    }
+
+    .botones {
+        flex-direction: column;
+    }
+
+    .boton-principal,
+    .boton-secundario {
+        text-align: center;
+    }
+
+    .beneficios {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .tarjeta {
+        padding: 20px;
+    }
+
+    .estadisticas {
+        grid-template-columns: 1fr;
+    }
+
+    .cita {
+        grid-template-columns: 50px 1fr;
+    }
+
+    .confirmada,
+    .pendiente {
+        display: none;
+    }
+}
