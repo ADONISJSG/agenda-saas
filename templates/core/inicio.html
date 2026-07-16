@@ -1,0 +1,135 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Gestión de citas</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/inicio.css' %}"
+    >
+</head>
+
+<body>
+    <header class="encabezado">
+        <div class="logo">
+            Agenda
+        </div>
+
+        <nav class="menu">
+            <a href="#">Inicio</a>
+            <a href="#">Funciones</a>
+            <a href="#">Precios</a>
+            <a href="#">Contacto</a>
+        </nav>
+
+        <div class="acciones">
+            <a class="iniciar" href="#">Iniciar sesión</a>
+            <a class="registrarse" href="#">Registrarme</a>
+        </div>
+    </header>
+
+    <main class="principal">
+        <section class="contenido">
+            <span class="etiqueta">
+                Gestión fácil para tu negocio
+            </span>
+
+            <h1>
+                Organiza tus citas y haz crecer tu negocio
+            </h1>
+
+            <p>
+                Administra clientes, servicios, profesionales y reservas
+                desde un solo lugar.
+            </p>
+
+            <div class="botones">
+                <a class="boton-principal" href="#">
+                    Comenzar gratis
+                </a>
+
+                <a class="boton-secundario" href="#">
+                    Ver cómo funciona
+                </a>
+            </div>
+
+            <div class="beneficios">
+                <span>✓ Agenda online</span>
+                <span>✓ Control de clientes</span>
+                <span>✓ Fácil de usar</span>
+            </div>
+        </section>
+
+        <section class="demostracion">
+            <div class="tarjeta">
+                <div class="tarjeta-superior">
+                    <div>
+                        <small>Resumen de hoy</small>
+                        <h2>Mis reservas</h2>
+                    </div>
+
+                    <span class="estado">En línea</span>
+                </div>
+
+                <div class="estadisticas">
+                    <div>
+                        <strong>12</strong>
+                        <span>Citas</span>
+                    </div>
+
+                    <div>
+                        <strong>8</strong>
+                        <span>Clientes</span>
+                    </div>
+
+                    <div>
+                        <strong>$240</strong>
+                        <span>Ingresos</span>
+                    </div>
+                </div>
+
+                <div class="cita">
+                    <div class="hora">09:00</div>
+
+                    <div>
+                        <strong>Corte de cabello</strong>
+                        <p>Carlos Mendoza</p>
+                    </div>
+
+                    <span class="confirmada">Confirmada</span>
+                </div>
+
+                <div class="cita">
+                    <div class="hora">10:30</div>
+
+                    <div>
+                        <strong>Tratamiento facial</strong>
+                        <p>María Zambrano</p>
+                    </div>
+
+                    <span class="pendiente">Pendiente</span>
+                </div>
+
+                <div class="cita">
+                    <div class="hora">12:00</div>
+
+                    <div>
+                        <strong>Manicure</strong>
+                        <p>Ana López</p>
+                    </div>
+
+                    <span class="confirmada">Confirmada</span>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
