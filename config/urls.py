@@ -3,11 +3,19 @@ from django.urls import include, path
 
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path(
+        "admin/",
+        admin.site.urls,
+    ),
 
     path(
         "cuenta/",
         include("usuarios.urls"),
+    ),
+
+    path(
+        "",
+        include("reservas.urls"),
     ),
 
     path(

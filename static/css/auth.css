@@ -6,46 +6,102 @@
 
 :root {
     --blanco: #ffffff;
-    --morado: #7457ff;
-    --morado-oscuro: #5e42e8;
-    --morado-claro: #f2efff;
-    --texto: #1d2638;
-    --texto-suave: #747e92;
-    --borde: #e5e8ef;
-    --rojo: #d94b4b;
+    --fondo: #f7fbfd;
+    --fondo-suave: #f2f9fc;
+
+    --celeste: #0ea5e9;
+    --celeste-oscuro: #0369a1;
+    --celeste-medio: #38bdf8;
+    --celeste-claro: #eaf7ff;
+    --celeste-muy-claro: #f4fbff;
+
+    --texto: #1e293b;
+    --texto-suave: #64748b;
+    --borde: #dceaf2;
+
+    --rojo: #dc5050;
     --rojo-claro: #fff0f0;
+
+    --verde: #168357;
+    --verde-claro: #e8f8f0;
+
+    --sombra:
+        0 18px 55px rgba(14, 116, 144, 0.10);
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
     background: var(--blanco);
     color: var(--texto);
-    font-family: Arial, Helvetica, sans-serif;
+    font-family:
+        Inter,
+        Arial,
+        Helvetica,
+        sans-serif;
     min-height: 100vh;
 }
 
 a {
+    color: inherit;
     text-decoration: none;
 }
 
+button,
+input {
+    font-family: inherit;
+}
+
+/* =========================
+   ESTRUCTURA PRINCIPAL
+========================= */
+
 .pagina-auth {
     display: grid;
-    grid-template-columns: minmax(360px, 0.9fr) minmax(480px, 1.1fr);
+    grid-template-columns:
+        minmax(380px, 0.9fr)
+        minmax(480px, 1.1fr);
     min-height: 100vh;
 }
+
+/* =========================
+   PANEL DE PRESENTACIÓN
+========================= */
 
 .panel-marca {
     background:
         radial-gradient(
             circle at 15% 15%,
-            rgba(116, 87, 255, 0.12),
-            transparent 35%
+            rgba(14, 165, 233, 0.15),
+            transparent 34%
+        ),
+        radial-gradient(
+            circle at 85% 85%,
+            rgba(56, 189, 248, 0.10),
+            transparent 30%
         ),
         var(--blanco);
     border-right: 1px solid var(--borde);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 45px 9%;
+    min-height: 100vh;
+    overflow: hidden;
+    padding: 42px 9%;
+    position: relative;
+}
+
+.panel-marca::after {
+    border: 1px solid rgba(14, 165, 233, 0.10);
+    border-radius: 50%;
+    bottom: -190px;
+    content: "";
+    height: 430px;
+    position: absolute;
+    right: -200px;
+    width: 430px;
 }
 
 .logo-auth {
@@ -53,39 +109,64 @@ a {
     color: var(--texto);
     display: flex;
     font-size: 23px;
-    font-weight: 800;
+    font-weight: 850;
     gap: 11px;
+    letter-spacing: -0.4px;
+    position: relative;
+    z-index: 2;
 }
 
 .logo-auth span {
     align-items: center;
-    background: var(--morado);
+    background: linear-gradient(
+        135deg,
+        var(--celeste),
+        var(--celeste-medio)
+    );
     border-radius: 11px;
+    box-shadow:
+        0 8px 22px rgba(14, 165, 233, 0.24);
     color: var(--blanco);
     display: flex;
+    font-size: 19px;
+    font-weight: 900;
     height: 42px;
     justify-content: center;
     width: 42px;
 }
 
 .contenido-marca {
-    margin-bottom: 10vh;
+    margin-bottom: 9vh;
     max-width: 530px;
+    position: relative;
+    z-index: 2;
 }
 
 .etiqueta-auth {
-    background: var(--morado-claro);
-    border-radius: 20px;
-    color: var(--morado);
-    display: inline-block;
-    font-size: 12px;
-    font-weight: 800;
+    align-items: center;
+    background: var(--celeste-claro);
+    border: 1px solid #cdeeff;
+    border-radius: 25px;
+    color: var(--celeste-oscuro);
+    display: inline-flex;
+    font-size: 11px;
+    font-weight: 850;
+    gap: 8px;
     margin-bottom: 24px;
     padding: 9px 14px;
 }
 
+.etiqueta-auth::before {
+    background: var(--celeste);
+    border-radius: 50%;
+    content: "";
+    height: 8px;
+    width: 8px;
+}
+
 .contenido-marca h1 {
-    font-size: clamp(38px, 4vw, 60px);
+    color: var(--texto);
+    font-size: clamp(38px, 4vw, 59px);
     letter-spacing: -1.8px;
     line-height: 1.05;
     margin-bottom: 22px;
@@ -93,7 +174,7 @@ a {
 
 .contenido-marca > p {
     color: var(--texto-suave);
-    font-size: 17px;
+    font-size: 16px;
     line-height: 1.7;
 }
 
@@ -104,48 +185,74 @@ a {
 }
 
 .beneficios-auth span {
-    color: #5e687d;
-    font-size: 14px;
+    align-items: center;
+    color: #566b79;
+    display: flex;
+    font-size: 13px;
+    font-weight: 600;
+    gap: 8px;
 }
+
+/* =========================
+   ZONA DEL FORMULARIO
+========================= */
 
 .seccion-formulario {
     align-items: center;
-    background: var(--blanco);
+    background:
+        radial-gradient(
+            circle at 95% 5%,
+            rgba(56, 189, 248, 0.08),
+            transparent 25%
+        ),
+        var(--fondo);
     display: flex;
     justify-content: center;
+    min-height: 100vh;
     padding: 45px 7%;
 }
 
 .tarjeta-auth {
+    background: var(--blanco);
+    border: 1px solid var(--borde);
+    border-radius: 20px;
+    box-shadow: var(--sombra);
     max-width: 470px;
+    padding: 38px;
     width: 100%;
 }
 
 .tarjeta-registro {
-    max-width: 560px;
+    max-width: 580px;
 }
 
 .cabecera-auth {
-    margin-bottom: 30px;
+    margin-bottom: 28px;
 }
 
 .cabecera-auth > p {
-    color: var(--morado);
-    font-size: 13px;
-    font-weight: 800;
+    color: var(--celeste-oscuro);
+    font-size: 12px;
+    font-weight: 850;
     margin-bottom: 8px;
 }
 
 .cabecera-auth h2 {
-    font-size: 34px;
+    color: var(--texto);
+    font-size: 33px;
     letter-spacing: -0.8px;
     margin-bottom: 10px;
 }
 
 .cabecera-auth span {
     color: var(--texto-suave);
-    font-size: 14px;
+    font-size: 13px;
+    line-height: 1.5;
 }
+
+/* =========================
+   CAMPOS
+========================= */
 
 .fila-campos {
     display: grid;
@@ -154,13 +261,14 @@ a {
 }
 
 .grupo-campo {
-    margin-bottom: 18px;
+    margin-bottom: 17px;
 }
 
 .grupo-campo label {
+    color: var(--texto);
     display: block;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     margin-bottom: 8px;
 }
 
@@ -169,140 +277,194 @@ a {
     border: 1px solid var(--borde);
     border-radius: 11px;
     color: var(--texto);
-    font-size: 14px;
+    font-size: 13px;
     outline: none;
     padding: 14px 15px;
     transition:
         border-color 0.2s ease,
-        box-shadow 0.2s ease;
+        box-shadow 0.2s ease,
+        background 0.2s ease;
     width: 100%;
 }
 
+.grupo-campo input:hover {
+    border-color: #b9dcea;
+}
+
 .grupo-campo input:focus {
-    border-color: var(--morado);
-    box-shadow: 0 0 0 4px rgba(116, 87, 255, 0.1);
+    background: var(--celeste-muy-claro);
+    border-color: var(--celeste);
+    box-shadow:
+        0 0 0 4px rgba(14, 165, 233, 0.11);
 }
 
 .grupo-campo input::placeholder {
-    color: #adb3c0;
+    color: #a8b6bf;
 }
 
 .ayuda-campo {
     color: var(--texto-suave);
     display: block;
-    font-size: 10px;
-    line-height: 1.4;
+    font-size: 9px;
+    line-height: 1.5;
     margin-top: 6px;
 }
 
 .error-campo {
     color: var(--rojo);
     display: block;
-    font-size: 11px;
+    font-size: 10px;
+    line-height: 1.4;
     margin-top: 6px;
 }
 
+/* =========================
+   ERRORES
+========================= */
+
 .mensaje-error {
     background: var(--rojo-claro);
-    border: 1px solid #ffd2d2;
-    border-radius: 10px;
+    border: 1px solid #ffd1d1;
+    border-radius: 11px;
     color: var(--rojo);
-    font-size: 12px;
-    line-height: 1.5;
+    font-size: 11px;
+    line-height: 1.6;
     margin-bottom: 20px;
-    padding: 12px 14px;
+    padding: 13px 15px;
 }
 
+/* =========================
+   BOTÓN PRINCIPAL
+========================= */
+
 .boton-auth {
-    background: var(--morado);
+    background: linear-gradient(
+        135deg,
+        var(--celeste),
+        #0284c7
+    );
     border: 0;
     border-radius: 11px;
+    box-shadow:
+        0 10px 26px rgba(14, 165, 233, 0.22);
     color: var(--blanco);
     cursor: pointer;
-    font-size: 14px;
-    font-weight: 800;
+    font-size: 13px;
+    font-weight: 850;
     margin-top: 5px;
     padding: 15px 20px;
     transition:
-        background 0.2s ease,
+        box-shadow 0.2s ease,
         transform 0.2s ease;
     width: 100%;
 }
 
 .boton-auth:hover {
-    background: var(--morado-oscuro);
-    transform: translateY(-1px);
+    box-shadow:
+        0 14px 32px rgba(14, 165, 233, 0.30);
+    transform: translateY(-2px);
 }
+
+/* =========================
+   ENLACES INFERIORES
+========================= */
 
 .cambio-auth {
     color: var(--texto-suave);
-    font-size: 13px;
-    margin-top: 23px;
+    font-size: 12px;
+    line-height: 1.5;
+    margin-top: 22px;
     text-align: center;
 }
 
 .cambio-auth a {
-    color: var(--morado);
-    font-weight: 800;
+    color: var(--celeste-oscuro);
+    font-weight: 850;
+}
+
+.cambio-auth a:hover {
+    color: var(--celeste);
 }
 
 .volver-inicio {
     color: var(--texto-suave);
     display: block;
-    font-size: 12px;
-    margin-top: 25px;
+    font-size: 11px;
+    margin-top: 24px;
     text-align: center;
+    transition: color 0.2s ease;
 }
 
 .volver-inicio:hover {
-    color: var(--morado);
+    color: var(--celeste-oscuro);
 }
 
-@media (max-width: 900px) {
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 950px) {
     .pagina-auth {
         display: block;
     }
 
     .panel-marca {
+        border-bottom: 1px solid var(--borde);
+        border-right: 0;
         min-height: auto;
-        padding: 26px 7% 45px;
+        padding: 27px 7% 50px;
     }
 
     .contenido-marca {
         margin: 60px 0 0;
+        max-width: 680px;
     }
 
     .contenido-marca h1 {
-        font-size: 39px;
+        font-size: 40px;
     }
 
     .seccion-formulario {
-        padding-bottom: 70px;
-        padding-top: 55px;
+        min-height: auto;
+        padding-bottom: 75px;
+        padding-top: 60px;
     }
 }
 
-@media (max-width: 550px) {
+@media (max-width: 570px) {
     .panel-marca {
         padding-left: 5%;
         padding-right: 5%;
+    }
+
+    .contenido-marca {
+        margin-top: 48px;
     }
 
     .contenido-marca h1 {
         font-size: 33px;
     }
 
+    .contenido-marca > p {
+        font-size: 14px;
+    }
+
     .seccion-formulario {
         padding-left: 5%;
         padding-right: 5%;
     }
 
+    .tarjeta-auth {
+        border-radius: 17px;
+        padding: 28px 20px;
+    }
+
     .fila-campos {
-        grid-template-columns: 1fr;
         gap: 0;
+        grid-template-columns: 1fr;
     }
 
     .cabecera-auth h2 {
-        font-size: 29px;
+        font-size: 28px;
     }
 }
