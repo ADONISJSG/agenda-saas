@@ -4,12 +4,13 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Gestión de citas</title>
+    <title>Agenda | Gestión de citas</title>
 
     <link
         rel="stylesheet"
@@ -19,20 +20,68 @@
 
 <body>
     <header class="encabezado">
-        <div class="logo">
+        <a
+            class="logo"
+            href="{% url 'core:inicio' %}"
+        >
             Agenda
-        </div>
+        </a>
 
         <nav class="menu">
-            <a href="#">Inicio</a>
-            <a href="#">Funciones</a>
-            <a href="#">Precios</a>
-            <a href="#">Contacto</a>
+            <a href="{% url 'core:inicio' %}">
+                Inicio
+            </a>
+
+            <a href="#funciones">
+                Funciones
+            </a>
+
+            <a href="#precios">
+                Precios
+            </a>
+
+            <a href="#contacto">
+                Contacto
+            </a>
         </nav>
 
         <div class="acciones">
-            <a class="iniciar" href="#">Iniciar sesión</a>
-            <a class="registrarse" href="#">Registrarme</a>
+            {% if user.is_authenticated %}
+                <a
+                    class="iniciar"
+                    href="{% url 'core:panel' %}"
+                >
+                    Ir al panel
+                </a>
+
+                <form
+                    method="post"
+                    action="{% url 'usuarios:logout' %}"
+                >
+                    {% csrf_token %}
+
+                    <button
+                        class="registrarse"
+                        type="submit"
+                    >
+                        Cerrar sesión
+                    </button>
+                </form>
+            {% else %}
+                <a
+                    class="iniciar"
+                    href="{% url 'usuarios:login' %}"
+                >
+                    Iniciar sesión
+                </a>
+
+                <a
+                    class="registrarse"
+                    href="{% url 'usuarios:registro' %}"
+                >
+                    Registrarme
+                </a>
+            {% endif %}
         </div>
     </header>
 
@@ -48,17 +97,32 @@
 
             <p>
                 Administra clientes, servicios, profesionales y reservas
-                desde un solo lugar.
+                desde un solo lugar, de manera rápida y sencilla.
             </p>
 
             <div class="botones">
-                <a class="boton-principal" href="#">
-                    Comenzar gratis
-                </a>
+                {% if user.is_authenticated %}
+                    <a
+                        class="boton-principal"
+                        href="{% url 'core:panel' %}"
+                    >
+                        Entrar al panel
+                    </a>
+                {% else %}
+                    <a
+                        class="boton-principal"
+                        href="{% url 'usuarios:registro' %}"
+                    >
+                        Comenzar gratis
+                    </a>
 
-                <a class="boton-secundario" href="#">
-                    Ver cómo funciona
-                </a>
+                    <a
+                        class="boton-secundario"
+                        href="{% url 'usuarios:login' %}"
+                    >
+                        Iniciar sesión
+                    </a>
+                {% endif %}
             </div>
 
             <div class="beneficios">
@@ -76,7 +140,9 @@
                         <h2>Mis reservas</h2>
                     </div>
 
-                    <span class="estado">En línea</span>
+                    <span class="estado">
+                        En línea
+                    </span>
                 </div>
 
                 <div class="estadisticas">
@@ -97,36 +163,48 @@
                 </div>
 
                 <div class="cita">
-                    <div class="hora">09:00</div>
+                    <div class="hora">
+                        09:00
+                    </div>
 
                     <div>
                         <strong>Corte de cabello</strong>
                         <p>Carlos Mendoza</p>
                     </div>
 
-                    <span class="confirmada">Confirmada</span>
+                    <span class="confirmada">
+                        Confirmada
+                    </span>
                 </div>
 
                 <div class="cita">
-                    <div class="hora">10:30</div>
+                    <div class="hora">
+                        10:30
+                    </div>
 
                     <div>
                         <strong>Tratamiento facial</strong>
                         <p>María Zambrano</p>
                     </div>
 
-                    <span class="pendiente">Pendiente</span>
+                    <span class="pendiente">
+                        Pendiente
+                    </span>
                 </div>
 
                 <div class="cita">
-                    <div class="hora">12:00</div>
+                    <div class="hora">
+                        12:00
+                    </div>
 
                     <div>
                         <strong>Manicure</strong>
                         <p>Ana López</p>
                     </div>
 
-                    <span class="confirmada">Confirmada</span>
+                    <span class="confirmada">
+                        Confirmada
+                    </span>
                 </div>
             </div>
         </section>

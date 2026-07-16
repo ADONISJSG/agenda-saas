@@ -1,0 +1,210 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Crear cuenta</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/auth.css' %}"
+    >
+</head>
+
+<body>
+    <main class="pagina-auth">
+        <section class="panel-marca">
+            <a
+                class="logo-auth"
+                href="{% url 'core:inicio' %}"
+            >
+                <span>A</span>
+                Agenda
+            </a>
+
+            <div class="contenido-marca">
+                <p class="etiqueta-auth">
+                    Empieza a organizar tu negocio
+                </p>
+
+                <h1>
+                    Crea tu cuenta y administra tus citas
+                </h1>
+
+                <p>
+                    Registra tu cuenta para comenzar a utilizar
+                    el panel de gestión.
+                </p>
+
+                <div class="beneficios-auth">
+                    <span>✓ Registro rápido</span>
+                    <span>✓ Panel administrativo</span>
+                    <span>✓ Acceso desde cualquier dispositivo</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="seccion-formulario">
+            <div class="tarjeta-auth tarjeta-registro">
+                <div class="cabecera-auth">
+                    <p>Comienza gratis</p>
+                    <h2>Crear una cuenta</h2>
+
+                    <span>
+                        Completa tus datos para ingresar al sistema.
+                    </span>
+                </div>
+
+                {% if formulario.non_field_errors %}
+                    <div class="mensaje-error">
+                        {% for error in formulario.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="fila-campos">
+                        <div class="grupo-campo">
+                            <label
+                                for="{{ formulario.first_name.id_for_label }}"
+                            >
+                                {{ formulario.first_name.label }}
+                            </label>
+
+                            {{ formulario.first_name }}
+
+                            {% for error in formulario.first_name.errors %}
+                                <small class="error-campo">
+                                    {{ error }}
+                                </small>
+                            {% endfor %}
+                        </div>
+
+                        <div class="grupo-campo">
+                            <label
+                                for="{{ formulario.last_name.id_for_label }}"
+                            >
+                                {{ formulario.last_name.label }}
+                            </label>
+
+                            {{ formulario.last_name }}
+
+                            {% for error in formulario.last_name.errors %}
+                                <small class="error-campo">
+                                    {{ error }}
+                                </small>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="grupo-campo">
+                        <label for="{{ formulario.username.id_for_label }}">
+                            {{ formulario.username.label }}
+                        </label>
+
+                        {{ formulario.username }}
+
+                        {% if formulario.username.help_text %}
+                            <small class="ayuda-campo">
+                                {{ formulario.username.help_text }}
+                            </small>
+                        {% endif %}
+
+                        {% for error in formulario.username.errors %}
+                            <small class="error-campo">
+                                {{ error }}
+                            </small>
+                        {% endfor %}
+                    </div>
+
+                    <div class="grupo-campo">
+                        <label for="{{ formulario.email.id_for_label }}">
+                            {{ formulario.email.label }}
+                        </label>
+
+                        {{ formulario.email }}
+
+                        {% for error in formulario.email.errors %}
+                            <small class="error-campo">
+                                {{ error }}
+                            </small>
+                        {% endfor %}
+                    </div>
+
+                    <div class="grupo-campo">
+                        <label for="{{ formulario.password1.id_for_label }}">
+                            {{ formulario.password1.label }}
+                        </label>
+
+                        {{ formulario.password1 }}
+
+                        {% if formulario.password1.help_text %}
+                            <small class="ayuda-campo">
+                                {{ formulario.password1.help_text }}
+                            </small>
+                        {% endif %}
+
+                        {% for error in formulario.password1.errors %}
+                            <small class="error-campo">
+                                {{ error }}
+                            </small>
+                        {% endfor %}
+                    </div>
+
+                    <div class="grupo-campo">
+                        <label for="{{ formulario.password2.id_for_label }}">
+                            {{ formulario.password2.label }}
+                        </label>
+
+                        {{ formulario.password2 }}
+
+                        {% if formulario.password2.help_text %}
+                            <small class="ayuda-campo">
+                                {{ formulario.password2.help_text }}
+                            </small>
+                        {% endif %}
+
+                        {% for error in formulario.password2.errors %}
+                            <small class="error-campo">
+                                {{ error }}
+                            </small>
+                        {% endfor %}
+                    </div>
+
+                    <button
+                        class="boton-auth"
+                        type="submit"
+                    >
+                        Crear mi cuenta
+                    </button>
+                </form>
+
+                <p class="cambio-auth">
+                    ¿Ya tienes una cuenta?
+
+                    <a href="{% url 'usuarios:login' %}">
+                        Inicia sesión
+                    </a>
+                </p>
+
+                <a
+                    class="volver-inicio"
+                    href="{% url 'core:inicio' %}"
+                >
+                    ← Volver al inicio
+                </a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

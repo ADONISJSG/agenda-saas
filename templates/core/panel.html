@@ -20,11 +20,15 @@
 
 <body>
     <div class="aplicacion">
-
         <aside class="barra-lateral">
             <div>
-                <a class="marca" href="{% url 'core:inicio' %}">
-                    <span class="marca-icono">A</span>
+                <a
+                    class="marca"
+                    href="{% url 'core:inicio' %}"
+                >
+                    <span class="marca-icono">
+                        A
+                    </span>
 
                     <span>
                         <strong>Agenda</strong>
@@ -33,34 +37,54 @@
                 </a>
 
                 <nav class="navegacion">
-                    <p class="titulo-menu">MENÚ PRINCIPAL</p>
+                    <p class="titulo-menu">
+                        MENÚ PRINCIPAL
+                    </p>
 
-                    <a class="enlace-menu activo" href="#">
+                    <a
+                        class="enlace-menu activo"
+                        href="{% url 'core:panel' %}"
+                    >
                         <span class="icono-menu">▦</span>
                         Resumen
                     </a>
 
-                    <a class="enlace-menu" href="#">
+                    <a
+                        class="enlace-menu"
+                        href="#"
+                    >
                         <span class="icono-menu">♙</span>
                         Clientes
                     </a>
 
-                    <a class="enlace-menu" href="#">
+                    <a
+                        class="enlace-menu"
+                        href="#"
+                    >
                         <span class="icono-menu">♟</span>
                         Profesionales
                     </a>
 
-                    <a class="enlace-menu" href="#">
+                    <a
+                        class="enlace-menu"
+                        href="#"
+                    >
                         <span class="icono-menu">◆</span>
                         Servicios
                     </a>
 
-                    <a class="enlace-menu" href="#">
+                    <a
+                        class="enlace-menu"
+                        href="#"
+                    >
                         <span class="icono-menu">▣</span>
                         Citas
                     </a>
 
-                    <a class="enlace-menu" href="#">
+                    <a
+                        class="enlace-menu"
+                        href="#"
+                    >
                         <span class="icono-menu">▤</span>
                         Planes
                     </a>
@@ -69,44 +93,71 @@
                         ADMINISTRACIÓN
                     </p>
 
-                    <a class="enlace-menu" href="#">
+                    <a
+                        class="enlace-menu"
+                        href="#"
+                    >
                         <span class="icono-menu">◎</span>
                         Seguimiento
                     </a>
 
-                    <a class="enlace-menu" href="#">
+                    <a
+                        class="enlace-menu"
+                        href="#"
+                    >
                         <span class="icono-menu">!</span>
                         Alertas
 
-                        <span class="contador-alertas">3</span>
+                        <span class="contador-alertas">
+                            3
+                        </span>
                     </a>
                 </nav>
             </div>
 
             <div class="usuario-lateral">
-                <div class="avatar">AS</div>
-
-                <div class="datos-usuario">
-                    <strong>Adonis Solórzano</strong>
-                    <span>Administrador</span>
+                <div class="avatar">
+                    {{ iniciales }}
                 </div>
 
-                <button
-                    class="boton-salir"
-                    type="button"
-                    title="Cerrar sesión"
+                <div class="datos-usuario">
+                    <strong>
+                        {{ nombre_usuario }}
+                    </strong>
+
+                    <span>
+                        Administrador
+                    </span>
+                </div>
+
+                <form
+                    class="form-salir"
+                    method="post"
+                    action="{% url 'usuarios:logout' %}"
                 >
-                    ↪
-                </button>
+                    {% csrf_token %}
+
+                    <button
+                        class="boton-salir"
+                        type="submit"
+                        title="Cerrar sesión"
+                    >
+                        ↪
+                    </button>
+                </form>
             </div>
         </aside>
 
         <main class="contenido-principal">
-
             <header class="encabezado-panel">
                 <div>
-                    <p class="saludo">Bienvenido nuevamente</p>
-                    <h1>Panel principal</h1>
+                    <p class="saludo">
+                        Bienvenido nuevamente, {{ nombre_usuario }}
+                    </p>
+
+                    <h1>
+                        Panel principal
+                    </h1>
                 </div>
 
                 <div class="acciones-panel">
@@ -124,14 +175,17 @@
                         <span>3</span>
                     </button>
 
-                    <div class="avatar avatar-superior">AS</div>
+                    <div class="avatar avatar-superior">
+                        {{ iniciales }}
+                    </div>
                 </div>
             </header>
 
             <section class="tarjetas-resumen">
-
                 <article class="tarjeta-resumen">
-                    <div class="icono-tarjeta icono-morado">♙</div>
+                    <div class="icono-tarjeta icono-morado">
+                        ♙
+                    </div>
 
                     <div>
                         <p>Total de clientes</p>
@@ -144,7 +198,9 @@
                 </article>
 
                 <article class="tarjeta-resumen">
-                    <div class="icono-tarjeta icono-verde">✓</div>
+                    <div class="icono-tarjeta icono-verde">
+                        ✓
+                    </div>
 
                     <div>
                         <p>Clientes activos</p>
@@ -157,7 +213,9 @@
                 </article>
 
                 <article class="tarjeta-resumen">
-                    <div class="icono-tarjeta icono-azul">▣</div>
+                    <div class="icono-tarjeta icono-azul">
+                        ▣
+                    </div>
 
                     <div>
                         <p>Citas agendadas</p>
@@ -170,7 +228,9 @@
                 </article>
 
                 <article class="tarjeta-resumen">
-                    <div class="icono-tarjeta icono-naranja">＋</div>
+                    <div class="icono-tarjeta icono-naranja">
+                        ＋
+                    </div>
 
                     <div>
                         <p>Nuevos clientes</p>
@@ -181,16 +241,17 @@
                         </span>
                     </div>
                 </article>
-
             </section>
 
             <section class="zona-estadisticas">
-
                 <article class="tarjeta-panel grafica-citas">
                     <div class="cabecera-tarjeta">
                         <div>
                             <h3>Citas de la semana</h3>
-                            <p>Actividad registrada por día</p>
+
+                            <p>
+                                Actividad registrada por día
+                            </p>
                         </div>
 
                         <select aria-label="Periodo de citas">
@@ -247,8 +308,13 @@
                 <article class="tarjeta-panel grafica-crecimiento">
                     <div class="cabecera-tarjeta">
                         <div>
-                            <h3>Crecimiento de clientes</h3>
-                            <p>Nuevos registros mensuales</p>
+                            <h3>
+                                Crecimiento de clientes
+                            </h3>
+
+                            <p>
+                                Nuevos registros mensuales
+                            </p>
                         </div>
 
                         <span class="indicador-crecimiento">
@@ -285,10 +351,33 @@
                                 </linearGradient>
                             </defs>
 
-                            <line x1="20" y1="40" x2="480" y2="40"/>
-                            <line x1="20" y1="90" x2="480" y2="90"/>
-                            <line x1="20" y1="140" x2="480" y2="140"/>
-                            <line x1="20" y1="190" x2="480" y2="190"/>
+                            <line
+                                x1="20"
+                                y1="40"
+                                x2="480"
+                                y2="40"
+                            />
+
+                            <line
+                                x1="20"
+                                y1="90"
+                                x2="480"
+                                y2="90"
+                            />
+
+                            <line
+                                x1="20"
+                                y1="140"
+                                x2="480"
+                                y2="140"
+                            />
+
+                            <line
+                                x1="20"
+                                y1="190"
+                                x2="480"
+                                y2="190"
+                            />
 
                             <path
                                 class="area-linea"
@@ -339,19 +428,22 @@
                         </div>
                     </div>
                 </article>
-
             </section>
 
             <section class="zona-inferior">
-
                 <article class="tarjeta-panel proximas-citas">
                     <div class="cabecera-tarjeta">
                         <div>
                             <h3>Próximas citas</h3>
-                            <p>Agenda programada para hoy</p>
+
+                            <p>
+                                Agenda programada para hoy
+                            </p>
                         </div>
 
-                        <a href="#">Ver todas</a>
+                        <a href="#">
+                            Ver todas
+                        </a>
                     </div>
 
                     <div class="lista-citas">
@@ -366,7 +458,9 @@
                                 </div>
 
                                 <div class="informacion-cita">
-                                    <strong>{{ cita.cliente }}</strong>
+                                    <strong>
+                                        {{ cita.cliente }}
+                                    </strong>
 
                                     <span>
                                         {{ cita.servicio }}
@@ -389,6 +483,10 @@
                                     ⋮
                                 </button>
                             </div>
+                        {% empty %}
+                            <p>
+                                No hay citas programadas.
+                            </p>
                         {% endfor %}
                     </div>
                 </article>
@@ -428,9 +526,7 @@
                         </div>
                     </div>
                 </article>
-
             </section>
-
         </main>
     </div>
 </body>

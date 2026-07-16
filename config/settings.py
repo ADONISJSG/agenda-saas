@@ -216,3 +216,8 @@ LOGGING = {
         },
     },
 }
+LOGIN_URL = "usuarios:login"
+
+LOGIN_REDIRECT_URL = "core:panel"
+
+LOGOUT_REDIRECT_URL = "core:inicio"

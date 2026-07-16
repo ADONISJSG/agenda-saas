@@ -207,13 +207,16 @@ a {
     margin-top: 3px;
 }
 
+.form-salir {
+    margin-left: auto;
+}
+
 .boton-salir {
     background: transparent;
     border: 0;
     color: #939bad;
     cursor: pointer;
     font-size: 20px;
-    margin-left: auto;
     transition: color 0.2s ease;
 }
 

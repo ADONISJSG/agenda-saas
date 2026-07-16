@@ -1,0 +1,138 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Iniciar sesión</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/auth.css' %}"
+    >
+</head>
+
+<body>
+    <main class="pagina-auth">
+        <section class="panel-marca">
+            <a
+                class="logo-auth"
+                href="{% url 'core:inicio' %}"
+            >
+                <span>A</span>
+                Agenda
+            </a>
+
+            <div class="contenido-marca">
+                <p class="etiqueta-auth">
+                    Gestión fácil para tu negocio
+                </p>
+
+                <h1>
+                    Organiza tus citas desde un solo lugar
+                </h1>
+
+                <p>
+                    Controla clientes, servicios, profesionales,
+                    horarios y reservas de forma rápida.
+                </p>
+
+                <div class="beneficios-auth">
+                    <span>✓ Agenda disponible en línea</span>
+                    <span>✓ Información segura</span>
+                    <span>✓ Acceso desde cualquier dispositivo</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="seccion-formulario">
+            <div class="tarjeta-auth">
+                <div class="cabecera-auth">
+                    <p>Bienvenido nuevamente</p>
+                    <h2>Iniciar sesión</h2>
+
+                    <span>
+                        Ingresa tus datos para acceder al sistema.
+                    </span>
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div class="mensaje-error">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% if next %}
+                        <input
+                            type="hidden"
+                            name="next"
+                            value="{{ next }}"
+                        >
+                    {% endif %}
+
+                    <div class="grupo-campo">
+                        <label for="{{ form.username.id_for_label }}">
+                            {{ form.username.label }}
+                        </label>
+
+                        {{ form.username }}
+
+                        {% for error in form.username.errors %}
+                            <small class="error-campo">
+                                {{ error }}
+                            </small>
+                        {% endfor %}
+                    </div>
+
+                    <div class="grupo-campo">
+                        <label for="{{ form.password.id_for_label }}">
+                            {{ form.password.label }}
+                        </label>
+
+                        {{ form.password }}
+
+                        {% for error in form.password.errors %}
+                            <small class="error-campo">
+                                {{ error }}
+                            </small>
+                        {% endfor %}
+                    </div>
+
+                    <button
+                        class="boton-auth"
+                        type="submit"
+                    >
+                        Entrar al sistema
+                    </button>
+                </form>
+
+                <p class="cambio-auth">
+                    ¿Todavía no tienes una cuenta?
+
+                    <a href="{% url 'usuarios:registro' %}">
+                        Regístrate aquí
+                    </a>
+                </p>
+
+                <a
+                    class="volver-inicio"
+                    href="{% url 'core:inicio' %}"
+                >
+                    ← Volver al inicio
+                </a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
