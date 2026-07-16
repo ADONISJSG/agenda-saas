@@ -1,0 +1,30 @@
+databases:
+  - name: agenda-saas-db
+    plan: free
+    databaseName: agenda_saas
+    user: agenda_saas
+
+
+services:
+  - type: web
+    name: agenda-saas
+    runtime: python
+    plan: free
+
+    buildCommand: bash build.sh
+
+    startCommand: >-
+      gunicorn config.wsgi:application
+      --bind 0.0.0.0:$PORT
+
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: agenda-saas-db
+          property: connectionString
+
+      - key: SECRET_KEY
+        generateValue: true
+
+      - key: DEBUG
+        value: "False"
