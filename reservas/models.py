@@ -48,6 +48,22 @@ class Cita(models.Model):
             "Tarjeta de débito o crédito",
         )
 
+    class EstadoPago(models.TextChoices):
+        PENDIENTE = (
+            "PENDIENTE",
+            "Pendiente de verificación",
+        )
+
+        VERIFICADO = (
+            "VERIFICADO",
+            "Verificado",
+        )
+
+        RECHAZADO = (
+            "RECHAZADO",
+            "Rechazado",
+        )
+
     codigo = models.UUIDField(
         default=uuid.uuid4,
         unique=True,
@@ -58,6 +74,7 @@ class Cita(models.Model):
         Paciente,
         on_delete=models.PROTECT,
         related_name="citas",
+        verbose_name="Usuario",
     )
 
     especialidad = models.ForeignKey(
@@ -66,14 +83,14 @@ class Cita(models.Model):
         related_name="citas",
     )
 
-    profesional = models.ForeignKey(
-        Profesional,
+    servicio = models.ForeignKey(
+        Servicio,
         on_delete=models.PROTECT,
         related_name="citas",
     )
 
-    servicio = models.ForeignKey(
-        Servicio,
+    profesional = models.ForeignKey(
+        Profesional,
         on_delete=models.PROTECT,
         related_name="citas",
     )
@@ -90,10 +107,12 @@ class Cita(models.Model):
     referencia_pago = models.CharField(
         max_length=120,
         blank=True,
-        help_text=(
-            "Número de comprobante o referencia "
-            "de la transferencia."
-        ),
+    )
+
+    estado_pago = models.CharField(
+        max_length=20,
+        choices=EstadoPago.choices,
+        default=EstadoPago.PENDIENTE,
     )
 
     valor_servicio = models.DecimalField(
@@ -154,7 +173,10 @@ class Cita(models.Model):
     def clean(self):
         super().clean()
 
-        if self.fecha and self.fecha < timezone.localdate():
+        if (
+            self.fecha
+            and self.fecha < timezone.localdate()
+        ):
             raise ValidationError(
                 {
                     "fecha": (
@@ -196,7 +218,9 @@ class Cita(models.Model):
 
     def save(self, *args, **kwargs):
         if self.servicio_id:
-            self.valor_servicio = self.servicio.precio
+            self.valor_servicio = (
+                self.servicio.precio
+            )
 
             self.anticipo = (
                 self.valor_servicio

@@ -1,9 +1,13 @@
+from datetime import time
 from decimal import Decimal
 
 from django.core.management.base import BaseCommand
+from django.db import transaction
 
+from core.models import Opinion
 from servicios.models import (
     Especialidad,
+    HorarioProfesional,
     Profesional,
     Servicio,
 )
@@ -11,224 +15,336 @@ from servicios.models import (
 
 class Command(BaseCommand):
     help = (
-        "Carga especialidades, profesionales "
-        "y servicios de demostración."
+        "Crea categorías, servicios, profesionales, "
+        "horarios y opiniones de demostración."
     )
 
+    @transaction.atomic
     def handle(self, *args, **options):
-        psicologia, _ = Especialidad.objects.update_or_create(
-            nombre="Psicología",
-            defaults={
-                "descripcion": (
-                    "Atención psicológica y "
-                    "acompañamiento emocional."
-                ),
-                "activa": True,
-            },
-        )
-
-        odontologia, _ = Especialidad.objects.update_or_create(
-            nombre="Odontología",
-            defaults={
-                "descripcion": (
-                    "Evaluación y tratamientos "
-                    "para la salud bucal."
-                ),
-                "activa": True,
-            },
-        )
-
-        fisioterapia, _ = Especialidad.objects.update_or_create(
-            nombre="Fisioterapia",
-            defaults={
-                "descripcion": (
-                    "Rehabilitación física y "
-                    "recuperación funcional."
-                ),
-                "activa": True,
-            },
-        )
-
-        medicina_general, _ = Especialidad.objects.update_or_create(
-            nombre="Medicina general",
-            defaults={
-                "descripcion": (
-                    "Consulta médica general, "
-                    "evaluación y diagnóstico."
-                ),
-                "activa": True,
-            },
-        )
-
-        servicios = [
+        especialidades = [
             {
-                "especialidad": psicologia,
-                "nombre": "Consulta psicológica",
+                "nombre": "Barbería",
                 "descripcion": (
-                    "Consulta individual con profesional "
-                    "de psicología."
+                    "Servicios de corte, arreglo de barba "
+                    "y cuidado personal."
                 ),
-                "duracion": 60,
-                "precio": Decimal("35.00"),
+                "servicios": [
+                    {
+                        "nombre": "Corte clásico",
+                        "duracion": 45,
+                        "precio": "12.00",
+                    },
+                    {
+                        "nombre": "Corte y barba",
+                        "duracion": 60,
+                        "precio": "18.00",
+                    },
+                ],
+                "profesionales": [
+                    {
+                        "nombres": "Carlos",
+                        "apellidos": "Mendoza",
+                        "telefono": "0991111111",
+                        "correo": "carlos@example.com",
+                    },
+                    {
+                        "nombres": "Luis",
+                        "apellidos": "Zambrano",
+                        "telefono": "0992222222",
+                        "correo": "luis@example.com",
+                    },
+                ],
             },
             {
-                "especialidad": psicologia,
-                "nombre": "Terapia de pareja",
+                "nombre": "Belleza y estética",
                 "descripcion": (
-                    "Sesión de acompañamiento "
-                    "para parejas."
+                    "Atención para cuidado facial, uñas, "
+                    "maquillaje y tratamientos estéticos."
                 ),
-                "duracion": 75,
-                "precio": Decimal("50.00"),
+                "servicios": [
+                    {
+                        "nombre": "Manicura completa",
+                        "duracion": 60,
+                        "precio": "15.00",
+                    },
+                    {
+                        "nombre": "Limpieza facial",
+                        "duracion": 75,
+                        "precio": "25.00",
+                    },
+                ],
+                "profesionales": [
+                    {
+                        "nombres": "María",
+                        "apellidos": "López",
+                        "telefono": "0993333333",
+                        "correo": "maria@example.com",
+                    },
+                    {
+                        "nombres": "Andrea",
+                        "apellidos": "Cedeño",
+                        "telefono": "0994444444",
+                        "correo": "andrea@example.com",
+                    },
+                ],
             },
             {
-                "especialidad": odontologia,
-                "nombre": "Evaluación odontológica",
+                "nombre": "Consultoría",
                 "descripcion": (
-                    "Revisión general del estado "
-                    "de la salud bucal."
+                    "Asesorías y consultas profesionales "
+                    "personalizadas."
                 ),
-                "duracion": 45,
-                "precio": Decimal("25.00"),
+                "servicios": [
+                    {
+                        "nombre": "Consulta inicial",
+                        "duracion": 60,
+                        "precio": "30.00",
+                    },
+                    {
+                        "nombre": "Asesoría especializada",
+                        "duracion": 90,
+                        "precio": "45.00",
+                    },
+                ],
+                "profesionales": [
+                    {
+                        "nombres": "José",
+                        "apellidos": "Vera",
+                        "telefono": "0995555555",
+                        "correo": "jose@example.com",
+                    },
+                    {
+                        "nombres": "Daniela",
+                        "apellidos": "Moreira",
+                        "telefono": "0996666666",
+                        "correo": "daniela@example.com",
+                    },
+                ],
             },
             {
-                "especialidad": odontologia,
-                "nombre": "Limpieza dental",
+                "nombre": "Entrenamiento personal",
                 "descripcion": (
-                    "Limpieza profesional y "
-                    "eliminación de placa."
+                    "Sesiones individuales de entrenamiento "
+                    "y acompañamiento físico."
                 ),
-                "duracion": 60,
-                "precio": Decimal("40.00"),
-            },
-            {
-                "especialidad": fisioterapia,
-                "nombre": "Sesión de fisioterapia",
-                "descripcion": (
-                    "Evaluación y tratamiento "
-                    "de recuperación física."
-                ),
-                "duracion": 60,
-                "precio": Decimal("30.00"),
-            },
-            {
-                "especialidad": fisioterapia,
-                "nombre": "Masaje terapéutico",
-                "descripcion": (
-                    "Masaje profesional para "
-                    "dolor y tensión muscular."
-                ),
-                "duracion": 45,
-                "precio": Decimal("28.00"),
-            },
-            {
-                "especialidad": medicina_general,
-                "nombre": "Consulta médica general",
-                "descripcion": (
-                    "Consulta, evaluación y "
-                    "orientación médica."
-                ),
-                "duracion": 40,
-                "precio": Decimal("30.00"),
-            },
-            {
-                "especialidad": medicina_general,
-                "nombre": "Control médico",
-                "descripcion": (
-                    "Seguimiento de diagnóstico "
-                    "o tratamiento anterior."
-                ),
-                "duracion": 30,
-                "precio": Decimal("20.00"),
+                "servicios": [
+                    {
+                        "nombre": "Evaluación inicial",
+                        "duracion": 45,
+                        "precio": "20.00",
+                    },
+                    {
+                        "nombre": "Sesión personalizada",
+                        "duracion": 60,
+                        "precio": "25.00",
+                    },
+                ],
+                "profesionales": [
+                    {
+                        "nombres": "Miguel",
+                        "apellidos": "Alcívar",
+                        "telefono": "0997777777",
+                        "correo": "miguel@example.com",
+                    },
+                    {
+                        "nombres": "Sofía",
+                        "apellidos": "Mero",
+                        "telefono": "0998888888",
+                        "correo": "sofia@example.com",
+                    },
+                ],
             },
         ]
 
-        for datos in servicios:
-            Servicio.objects.update_or_create(
-                especialidad=datos["especialidad"],
-                nombre=datos["nombre"],
-                defaults={
-                    "descripcion": datos["descripcion"],
-                    "duracion_minutos": datos["duracion"],
-                    "precio": datos["precio"],
-                    "activo": True,
-                },
+        total_especialidades = 0
+        total_servicios = 0
+        total_profesionales = 0
+        total_horarios = 0
+
+        for datos_especialidad in especialidades:
+            especialidad, creada = (
+                Especialidad.objects.update_or_create(
+                    nombre=datos_especialidad["nombre"],
+                    defaults={
+                        "descripcion": (
+                            datos_especialidad["descripcion"]
+                        ),
+                        "activa": True,
+                    },
+                )
             )
 
-        profesionales = [
-            {
-                "especialidad": psicologia,
-                "nombres": "Andrea",
-                "apellidos": "López",
-                "telefono": "0991111111",
-                "correo": "andrea@example.com",
-            },
-            {
-                "especialidad": psicologia,
-                "nombres": "Carlos",
-                "apellidos": "Mendoza",
-                "telefono": "0992222222",
-                "correo": "carlos@example.com",
-            },
-            {
-                "especialidad": odontologia,
-                "nombres": "María",
-                "apellidos": "Zambrano",
-                "telefono": "0993333333",
-                "correo": "maria@example.com",
-            },
-            {
-                "especialidad": odontologia,
-                "nombres": "José",
-                "apellidos": "Andrade",
-                "telefono": "0994444444",
-                "correo": "jose@example.com",
-            },
-            {
-                "especialidad": fisioterapia,
-                "nombres": "Daniela",
-                "apellidos": "Mera",
-                "telefono": "0995555555",
-                "correo": "daniela@example.com",
-            },
-            {
-                "especialidad": fisioterapia,
-                "nombres": "Luis",
-                "apellidos": "Cedeño",
-                "telefono": "0996666666",
-                "correo": "luis@example.com",
-            },
-            {
-                "especialidad": medicina_general,
-                "nombres": "Sofía",
-                "apellidos": "Vera",
-                "telefono": "0997777777",
-                "correo": "sofia@example.com",
-            },
-            {
-                "especialidad": medicina_general,
-                "nombres": "Miguel",
-                "apellidos": "Moreira",
-                "telefono": "0998888888",
-                "correo": "miguel@example.com",
-            },
-        ]
+            if creada:
+                total_especialidades += 1
 
-        for datos in profesionales:
-            Profesional.objects.update_or_create(
-                especialidad=datos["especialidad"],
-                nombres=datos["nombres"],
-                apellidos=datos["apellidos"],
-                defaults={
-                    "telefono": datos["telefono"],
-                    "correo": datos["correo"],
-                    "activo": True,
-                },
-            )
+            for datos_servicio in datos_especialidad[
+                "servicios"
+            ]:
+                _, servicio_creado = (
+                    Servicio.objects.update_or_create(
+                        especialidad=especialidad,
+                        nombre=datos_servicio["nombre"],
+                        defaults={
+                            "descripcion": "",
+                            "duracion_minutos": (
+                                datos_servicio["duracion"]
+                            ),
+                            "precio": Decimal(
+                                datos_servicio["precio"]
+                            ),
+                            "activo": True,
+                        },
+                    )
+                )
+
+                if servicio_creado:
+                    total_servicios += 1
+
+            for datos_profesional in datos_especialidad[
+                "profesionales"
+            ]:
+                profesional, profesional_creado = (
+                    Profesional.objects.update_or_create(
+                        especialidad=especialidad,
+                        nombres=datos_profesional["nombres"],
+                        apellidos=datos_profesional["apellidos"],
+                        defaults={
+                            "telefono": (
+                                datos_profesional["telefono"]
+                            ),
+                            "correo": (
+                                datos_profesional["correo"]
+                            ),
+                            "activo": True,
+                        },
+                    )
+                )
+
+                if profesional_creado:
+                    total_profesionales += 1
+
+                total_horarios += self.crear_horarios(
+                    profesional
+                )
+
+        self.crear_opiniones()
 
         self.stdout.write(
             self.style.SUCCESS(
-                "Especialidades, servicios y "
-                "profesionales cargados correctamente."
+                "Datos de demostración cargados correctamente."
             )
         )
+
+        self.stdout.write(
+            f"Especialidades nuevas: {total_especialidades}"
+        )
+
+        self.stdout.write(
+            f"Servicios nuevos: {total_servicios}"
+        )
+
+        self.stdout.write(
+            f"Profesionales nuevos: {total_profesionales}"
+        )
+
+        self.stdout.write(
+            f"Horarios nuevos: {total_horarios}"
+        )
+
+    def crear_horarios(self, profesional):
+        creados = 0
+
+        # Lunes a viernes: jornada de mañana
+        for dia in range(0, 5):
+            _, creado = (
+                HorarioProfesional.objects.get_or_create(
+                    profesional=profesional,
+                    dia_semana=dia,
+                    hora_inicio=time(8, 0),
+                    hora_fin=time(12, 0),
+                    defaults={
+                        "intervalo_minutos": 30,
+                        "activo": True,
+                    },
+                )
+            )
+
+            if creado:
+                creados += 1
+
+        # Lunes a viernes: jornada de tarde
+        for dia in range(0, 5):
+            _, creado = (
+                HorarioProfesional.objects.get_or_create(
+                    profesional=profesional,
+                    dia_semana=dia,
+                    hora_inicio=time(14, 0),
+                    hora_fin=time(18, 0),
+                    defaults={
+                        "intervalo_minutos": 30,
+                        "activo": True,
+                    },
+                )
+            )
+
+            if creado:
+                creados += 1
+
+        # Sábado
+        _, creado = HorarioProfesional.objects.get_or_create(
+            profesional=profesional,
+            dia_semana=5,
+            hora_inicio=time(9, 0),
+            hora_fin=time(13, 0),
+            defaults={
+                "intervalo_minutos": 30,
+                "activo": True,
+            },
+        )
+
+        if creado:
+            creados += 1
+
+        return creados
+
+    def crear_opiniones(self):
+        opiniones = [
+            {
+                "nombre": "María López",
+                "calificacion": 5,
+                "comentario": (
+                    "El proceso fue rápido y pude escoger "
+                    "el horario que más me convenía."
+                ),
+                "destacada": True,
+            },
+            {
+                "nombre": "Luis Carrillo",
+                "calificacion": 5,
+                "comentario": (
+                    "La plataforma es fácil de utilizar "
+                    "y muestra claramente la disponibilidad."
+                ),
+                "destacada": True,
+            },
+            {
+                "nombre": "Daniela Zambrano",
+                "calificacion": 4,
+                "comentario": (
+                    "Encontré al profesional que necesitaba "
+                    "y pude agendar sin complicaciones."
+                ),
+                "destacada": False,
+            },
+        ]
+
+        for datos in opiniones:
+            Opinion.objects.update_or_create(
+                nombre=datos["nombre"],
+                comentario=datos["comentario"],
+                defaults={
+                    "calificacion": datos["calificacion"],
+                    "aprobada": True,
+                    "destacada": datos["destacada"],
+                },
+            )

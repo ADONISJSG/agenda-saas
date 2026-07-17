@@ -6,6 +6,7 @@ from .models import Cita
 @admin.register(Cita)
 class CitaAdmin(admin.ModelAdmin):
     list_display = (
+        "codigo_corto",
         "paciente",
         "fecha",
         "hora",
@@ -13,13 +14,16 @@ class CitaAdmin(admin.ModelAdmin):
         "profesional",
         "servicio",
         "anticipo",
+        "estado_pago",
         "estado",
     )
 
     search_fields = (
-        "paciente__cedula",
+        "codigo",
         "paciente__nombres",
         "paciente__apellidos",
+        "paciente__cedula",
+        "paciente__celular",
         "profesional__nombres",
         "profesional__apellidos",
         "referencia_pago",
@@ -27,6 +31,7 @@ class CitaAdmin(admin.ModelAdmin):
 
     list_filter = (
         "estado",
+        "estado_pago",
         "metodo_pago",
         "fecha",
         "especialidad",
@@ -39,6 +44,7 @@ class CitaAdmin(admin.ModelAdmin):
     )
 
     list_editable = (
+        "estado_pago",
         "estado",
     )
 
@@ -53,7 +59,7 @@ class CitaAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (
-            "Datos de la cita",
+            "Información de la cita",
             {
                 "fields": (
                     "codigo",
@@ -73,6 +79,7 @@ class CitaAdmin(admin.ModelAdmin):
                 "fields": (
                     "metodo_pago",
                     "referencia_pago",
+                    "estado_pago",
                     "valor_servicio",
                     "anticipo",
                     "saldo_pendiente",
@@ -89,3 +96,7 @@ class CitaAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+    @admin.display(description="Código")
+    def codigo_corto(self, cita):
+        return str(cita.codigo).split("-")[0].upper()

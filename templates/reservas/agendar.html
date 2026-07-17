@@ -10,161 +10,298 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Agendar cita | Agenda</title>
+    <title>Agendar cita</title>
 
     <link
         rel="stylesheet"
-        href="{% static 'css/agendar.css' %}?v=1"
+        href="{% static 'css/agendar.css' %}?v=10"
     >
 </head>
 
 <body>
-    <header class="barra-superior">
+
+<header class="encabezado">
+    <div class="encabezado-contenido">
+
         <a
-            class="marca-agenda"
-            href="{% url 'core:inicio' %}"
+            href="/"
+            class="marca"
         >
             <span class="marca-icono">A</span>
 
             <div>
                 <strong>Agenda</strong>
-                <small>Sistema de citas</small>
+                <small>Reserva tu atención</small>
             </div>
         </a>
 
-        <div class="acciones-superiores">
-            <a
-                class="volver-inicio"
-                href="{% url 'core:inicio' %}"
-            >
-                Volver al inicio
-            </a>
+        <nav class="navegacion">
+            <a href="/">Inicio</a>
+            <a href="#opiniones">Opiniones</a>
+            <a href="/cuenta/login/">Ingresar</a>
+        </nav>
 
-            <a
-                class="acceso-personal"
-                href="{% url 'usuarios:login' %}"
-            >
-                Acceso del personal
-            </a>
-        </div>
-    </header>
+    </div>
+</header>
 
-    <main class="contenedor-agendar">
-        <section class="cabecera-agendar">
-            <span class="etiqueta-agendar">
-                Agendamiento en línea
-            </span>
 
-            <h1>Reserva tu cita</h1>
+<main class="pagina-agendamiento">
 
-            <p>
-                Completa la información paso a paso para seleccionar
-                especialidad, profesional, fecha, hora y método de pago.
-            </p>
-        </section>
+    <section class="presentacion">
+        <span class="etiqueta-superior">
+            Agenda fácil y rápidamente
+        </span>
 
-        <section class="barra-progreso">
-            <div
-                class="indicador-paso activo"
-                data-indicador="1"
-            >
-                <span>1</span>
-                <small>Datos</small>
+        <h1>Reserva tu cita</h1>
+
+        <p>
+            Selecciona la especialidad, el profesional,
+            una fecha disponible y el horario que prefieras.
+        </p>
+    </section>
+
+
+    <div class="distribucion-principal">
+
+        <!-- PUBLICIDAD PROPIA -->
+        <aside class="columna-publicidad publicidad-propia">
+
+            <div class="titulo-publicidad">
+                <span>Promociones</span>
             </div>
 
-            <div class="linea-paso"></div>
+            {% if anuncios_propios %}
 
-            <div
-                class="indicador-paso"
-                data-indicador="2"
-            >
-                <span>2</span>
-                <small>Especialidad</small>
-            </div>
+                {% for anuncio in anuncios_propios %}
 
-            <div class="linea-paso"></div>
+                    <article class="anuncio-propio">
 
-            <div
-                class="indicador-paso"
-                data-indicador="3"
-            >
-                <span>3</span>
-                <small>Profesional</small>
-            </div>
+                        {% if anuncio.enlace %}
+                            <a
+                                href="{{ anuncio.enlace }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                        {% endif %}
 
-            <div class="linea-paso"></div>
+                            <img
+                                src="{{ anuncio.imagen_url }}"
+                                alt="{{ anuncio.titulo }}"
+                                loading="lazy"
+                            >
 
-            <div
-                class="indicador-paso"
-                data-indicador="4"
-            >
-                <span>4</span>
-                <small>Horario</small>
-            </div>
+                            <div class="anuncio-informacion">
 
-            <div class="linea-paso"></div>
+                                <h3>
+                                    {{ anuncio.titulo }}
+                                </h3>
 
-            <div
-                class="indicador-paso"
-                data-indicador="5"
-            >
-                <span>5</span>
-                <small>Pago</small>
-            </div>
-        </section>
+                                {% if anuncio.descripcion %}
+                                    <p>
+                                        {{ anuncio.descripcion }}
+                                    </p>
+                                {% endif %}
 
-        {% if formulario.errors %}
-            <section class="contenedor-errores">
-                <strong>
-                    Revisa la información ingresada:
-                </strong>
+                            </div>
 
-                {% for campo in formulario %}
-                    {% for error in campo.errors %}
-                        <p>
-                            {{ campo.label }}: {{ error }}
-                        </p>
-                    {% endfor %}
+                        {% if anuncio.enlace %}
+                            </a>
+                        {% endif %}
+
+                    </article>
+
                 {% endfor %}
 
-                {% for error in formulario.non_field_errors %}
-                    <p>{{ error }}</p>
-                {% endfor %}
-            </section>
-        {% endif %}
+            {% else %}
 
-        <form
-            id="formulario-agendar"
-            method="post"
-            novalidate
+                <div class="publicidad-vacia">
+                    <span class="publicidad-vacia-icono">
+                        📢
+                    </span>
+
+                    <strong>
+                        Publicidad propia
+                    </strong>
+
+                    <p>
+                        Aquí aparecerán promociones,
+                        descuentos y servicios destacados.
+                    </p>
+                </div>
+
+            {% endif %}
+
+        </aside>
+
+
+        <!-- FORMULARIO CENTRAL -->
+        <section
+            class="contenedor-formulario"
+            id="contenedor-agendamiento"
+
+            data-url-profesionales=
+            "{% url 'reservas:api_profesionales' %}"
+
+            data-url-disponibilidad=
+            "{% url 'reservas:api_disponibilidad_mensual' %}"
+
+            data-url-horarios=
+            "{% url 'reservas:api_horarios' %}"
+
+            data-especialidad-inicial=
+            "{{ formulario.especialidad.value|default:'' }}"
+
+            data-profesional-inicial=
+            "{{ formulario.profesional.value|default:'' }}"
+
+            data-fecha-inicial=
+            "{{ formulario.fecha.value|default:'' }}"
+
+            data-hora-inicial=
+            "{{ formulario.hora.value|default:'' }}"
         >
-            {% csrf_token %}
 
-            <!-- PASO 1 -->
-            <section
-                class="paso-formulario activo"
-                data-paso="1"
+            <div class="barra-progreso">
+
+                <div class="progreso-linea">
+                    <div
+                        class="progreso-linea-activa"
+                        id="progreso-linea-activa"
+                    ></div>
+                </div>
+
+                <div class="pasos-indicadores">
+
+                    <button
+                        type="button"
+                        class="indicador-paso activo"
+                        data-indicador="1"
+                    >
+                        <span>1</span>
+                        <small>Usuario</small>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="indicador-paso"
+                        data-indicador="2"
+                    >
+                        <span>2</span>
+                        <small>Especialidad</small>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="indicador-paso"
+                        data-indicador="3"
+                    >
+                        <span>3</span>
+                        <small>Profesional</small>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="indicador-paso"
+                        data-indicador="4"
+                    >
+                        <span>4</span>
+                        <small>Agenda</small>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="indicador-paso"
+                        data-indicador="5"
+                    >
+                        <span>5</span>
+                        <small>Pago</small>
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <form
+                method="post"
+                id="formulario-agendamiento"
+                novalidate
             >
-                <article class="tarjeta-formulario">
-                    <div class="encabezado-paso">
-                        <span class="numero-paso">01</span>
+
+                {% csrf_token %}
+
+
+                {% if formulario.non_field_errors %}
+
+                    <div class="mensaje-error-general">
+                        {% for error in formulario.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                {% endif %}
+
+
+                <!-- CAMPOS OCULTOS CONTROLADOS POR JAVASCRIPT -->
+                <div class="campos-control">
+
+                    <div id="campo-especialidad-real">
+                        {{ formulario.especialidad }}
+                    </div>
+
+                    <div id="campo-profesional-real">
+                        {{ formulario.profesional }}
+                    </div>
+
+                    <div id="campo-servicio-real">
+                        {{ formulario.servicio }}
+                    </div>
+
+                    <div id="campo-fecha-real">
+                        {{ formulario.fecha }}
+                    </div>
+
+                    <div id="campo-hora-real">
+                        {{ formulario.hora }}
+                    </div>
+
+                </div>
+
+
+                <!-- PASO 1 -->
+                <section
+                    class="paso-formulario activo"
+                    data-paso="1"
+                >
+
+                    <div class="cabecera-paso">
+                        <span class="cabecera-paso-icono">
+                            👤
+                        </span>
 
                         <div>
-                            <h2>Información del paciente</h2>
+                            <span class="numero-paso">
+                                Paso 1 de 5
+                            </span>
+
+                            <h2>
+                                Información del usuario
+                            </h2>
 
                             <p>
-                                Completa tus datos personales.
-                                El correo electrónico es opcional.
+                                Ingresa los datos de la persona
+                                que recibirá la atención.
                             </p>
                         </div>
                     </div>
 
+
                     <div class="cuadricula-campos">
+
                         <div class="grupo-campo">
-                            <label
-                                for="{{ formulario.nombres.id_for_label }}"
-                            >
-                                Nombres completos *
+                            <label for="{{ formulario.nombres.id_for_label }}">
+                                Nombres completos
+                                <span>*</span>
                             </label>
 
                             {{ formulario.nombres }}
@@ -176,11 +313,11 @@
                             {% endfor %}
                         </div>
 
+
                         <div class="grupo-campo">
-                            <label
-                                for="{{ formulario.apellidos.id_for_label }}"
-                            >
-                                Apellidos completos *
+                            <label for="{{ formulario.apellidos.id_for_label }}">
+                                Apellidos completos
+                                <span>*</span>
                             </label>
 
                             {{ formulario.apellidos }}
@@ -192,17 +329,50 @@
                             {% endfor %}
                         </div>
 
+
                         <div class="grupo-campo">
-                            <label
-                                for="{{ formulario.cedula.id_for_label }}"
-                            >
-                                Cédula *
+                            <label for="{{ formulario.nacionalidad.id_for_label }}">
+                                Nacionalidad
+                                <span>*</span>
+                            </label>
+
+                            {{ formulario.nacionalidad }}
+
+                            {% for error in formulario.nacionalidad.errors %}
+                                <small class="error-campo">
+                                    {{ error }}
+                                </small>
+                            {% endfor %}
+                        </div>
+
+
+                        <div class="grupo-campo">
+                            <label for="{{ formulario.tipo_documento.id_for_label }}">
+                                Tipo de documento
+                                <span>*</span>
+                            </label>
+
+                            {{ formulario.tipo_documento }}
+
+                            {% for error in formulario.tipo_documento.errors %}
+                                <small class="error-campo">
+                                    {{ error }}
+                                </small>
+                            {% endfor %}
+                        </div>
+
+
+                        <div class="grupo-campo">
+                            <label for="{{ formulario.cedula.id_for_label }}">
+                                Número de documento
+                                <span>*</span>
                             </label>
 
                             {{ formulario.cedula }}
 
                             <small class="ayuda-campo">
-                                Ingresa una cédula ecuatoriana de 10 dígitos.
+                                Se aceptan cédulas, DNI,
+                                pasaportes y otros documentos.
                             </small>
 
                             {% for error in formulario.cedula.errors %}
@@ -212,17 +382,17 @@
                             {% endfor %}
                         </div>
 
+
                         <div class="grupo-campo">
-                            <label
-                                for="{{ formulario.celular.id_for_label }}"
-                            >
-                                Celular *
+                            <label for="{{ formulario.celular.id_for_label }}">
+                                Celular
+                                <span>*</span>
                             </label>
 
                             {{ formulario.celular }}
 
                             <small class="ayuda-campo">
-                                Ejemplo: 0991234567
+                                Puedes incluir el código del país.
                             </small>
 
                             {% for error in formulario.celular.errors %}
@@ -232,18 +402,16 @@
                             {% endfor %}
                         </div>
 
+
                         <div class="grupo-campo campo-completo">
-                            <label
-                                for="{{ formulario.correo.id_for_label }}"
-                            >
+                            <label for="{{ formulario.correo.id_for_label }}">
                                 Correo electrónico
                             </label>
 
                             {{ formulario.correo }}
 
                             <small class="ayuda-campo">
-                                Es opcional. Se usará posteriormente
-                                para confirmaciones y recordatorios.
+                                Este campo es opcional.
                             </small>
 
                             {% for error in formulario.correo.errors %}
@@ -252,38 +420,43 @@
                                 </small>
                             {% endfor %}
                         </div>
+
                     </div>
 
-                    <div class="acciones-paso">
-                        <a
-                            class="boton-secundario"
-                            href="{% url 'core:inicio' %}"
-                        >
-                            Cancelar
-                        </a>
 
+                    <div class="acciones-paso acciones-derecha">
                         <button
-                            class="boton-principal"
                             type="button"
-                            data-siguiente="2"
+                            class="boton boton-principal"
+                            data-siguiente
                         >
                             Continuar
+                            <span>→</span>
                         </button>
                     </div>
-                </article>
-            </section>
 
-            <!-- PASO 2 -->
-            <section
-                class="paso-formulario"
-                data-paso="2"
-            >
-                <article class="tarjeta-formulario">
-                    <div class="encabezado-paso">
-                        <span class="numero-paso">02</span>
+                </section>
+
+
+                <!-- PASO 2 -->
+                <section
+                    class="paso-formulario"
+                    data-paso="2"
+                >
+
+                    <div class="cabecera-paso">
+                        <span class="cabecera-paso-icono">
+                            ✦
+                        </span>
 
                         <div>
-                            <h2>Especialidad y servicio</h2>
+                            <span class="numero-paso">
+                                Paso 2 de 5
+                            </span>
+
+                            <h2>
+                                Escoge una especialidad
+                            </h2>
 
                             <p>
                                 Selecciona el tipo de atención
@@ -292,465 +465,774 @@
                         </div>
                     </div>
 
-                    <h3 class="titulo-opciones">
-                        Selecciona una especialidad
-                    </h3>
-
-                    <div class="rejilla-opciones">
-                        {% for especialidad in especialidades %}
-                            <label
-                                class="tarjeta-opcion"
-                                data-tipo="especialidad"
-                                data-id="{{ especialidad.id }}"
-                            >
-                                <input
-                                    type="radio"
-                                    name="especialidad"
-                                    value="{{ especialidad.id }}"
-                                >
-
-                                <span class="icono-opcion">
-                                    ✦
-                                </span>
-
-                                <strong>
-                                    {{ especialidad.nombre }}
-                                </strong>
-
-                                <small>
-                                    {{ especialidad.descripcion|default:"Atención profesional especializada." }}
-                                </small>
-                            </label>
-                        {% empty %}
-                            <div class="mensaje-vacio">
-                                No hay especialidades disponibles.
-                            </div>
-                        {% endfor %}
-                    </div>
-
-                    <h3 class="titulo-opciones">
-                        Selecciona un servicio
-                    </h3>
 
                     <div
-                        class="rejilla-opciones"
-                        id="lista-servicios"
+                        class="tarjetas-especialidades"
+                        id="lista-especialidades"
                     >
-                        {% for servicio in servicios %}
-                            <label
-                                class="tarjeta-opcion opcion-filtrable"
-                                data-tipo="servicio"
-                                data-especialidad="{{ servicio.especialidad_id }}"
-                                data-precio="{{ servicio.precio }}"
-                                data-nombre="{{ servicio.nombre }}"
-                            >
-                                <input
-                                    type="radio"
-                                    name="servicio"
-                                    value="{{ servicio.id }}"
-                                >
 
-                                <span class="icono-opcion">
-                                    ◇
+                        {% for especialidad in especialidades %}
+
+                            <button
+                                type="button"
+                                class="tarjeta-seleccion tarjeta-especialidad"
+                                data-especialidad-id="{{ especialidad.id }}"
+                                data-especialidad-nombre="{{ especialidad.nombre }}"
+                            >
+
+                                <span class="tarjeta-icono">
+                                    ✚
                                 </span>
 
+                                <span class="tarjeta-texto">
+                                    <strong>
+                                        {{ especialidad.nombre }}
+                                    </strong>
+
+                                    {% if especialidad.descripcion %}
+                                        <small>
+                                            {{ especialidad.descripcion|truncatechars:90 }}
+                                        </small>
+                                    {% else %}
+                                        <small>
+                                            Seleccionar especialidad
+                                        </small>
+                                    {% endif %}
+                                </span>
+
+                                <span class="marca-seleccion">
+                                    ✓
+                                </span>
+
+                            </button>
+
+                        {% empty %}
+
+                            <div class="estado-vacio">
+                                <span>📅</span>
+
                                 <strong>
-                                    {{ servicio.nombre }}
+                                    No hay especialidades disponibles
                                 </strong>
 
-                                <small>
-                                    {{ servicio.duracion_minutos }}
-                                    minutos
-                                </small>
-
-                                <b>
-                                    ${{ servicio.precio }}
-                                </b>
-                            </label>
-                        {% empty %}
-                            <div class="mensaje-vacio">
-                                No hay servicios disponibles.
+                                <p>
+                                    Intenta nuevamente más tarde.
+                                </p>
                             </div>
+
                         {% endfor %}
+
                     </div>
+
 
                     {% for error in formulario.especialidad.errors %}
-                        <small class="error-general">
+                        <div class="error-bloque">
                             {{ error }}
-                        </small>
+                        </div>
                     {% endfor %}
 
-                    {% for error in formulario.servicio.errors %}
-                        <small class="error-general">
-                            {{ error }}
-                        </small>
-                    {% endfor %}
 
                     <div class="acciones-paso">
+
                         <button
-                            class="boton-secundario"
                             type="button"
-                            data-anterior="1"
+                            class="boton boton-secundario"
+                            data-anterior
                         >
-                            Atrás
+                            ← Regresar
                         </button>
 
                         <button
-                            class="boton-principal"
                             type="button"
-                            data-siguiente="3"
+                            class="boton boton-principal"
+                            data-siguiente
                         >
-                            Continuar
+                            Continuar →
                         </button>
+
                     </div>
-                </article>
-            </section>
 
-            <!-- PASO 3 -->
-            <section
-                class="paso-formulario"
-                data-paso="3"
-            >
-                <article class="tarjeta-formulario">
-                    <div class="encabezado-paso">
-                        <span class="numero-paso">03</span>
+                </section>
+
+
+                <!-- PASO 3 -->
+                <section
+                    class="paso-formulario"
+                    data-paso="3"
+                >
+
+                    <div class="cabecera-paso">
+                        <span class="cabecera-paso-icono">
+                            👔
+                        </span>
 
                         <div>
-                            <h2>Selecciona al profesional</h2>
+                            <span class="numero-paso">
+                                Paso 3 de 5
+                            </span>
 
-                            <p>
-                                Aparecerán únicamente los profesionales
-                                de la especialidad escogida.
+                            <h2>
+                                Selecciona un profesional
+                            </h2>
+
+                            <p id="texto-especialidad-seleccionada">
+                                Primero selecciona una especialidad.
                             </p>
                         </div>
                     </div>
+
 
                     <div
-                        class="rejilla-opciones"
+                        class="estado-cargando oculto"
+                        id="cargando-profesionales"
+                    >
+                        <span class="cargador"></span>
+                        <p>Cargando profesionales...</p>
+                    </div>
+
+
+                    <div
+                        class="tarjetas-profesionales"
                         id="lista-profesionales"
                     >
-                        {% for profesional in profesionales %}
-                            <label
-                                class="tarjeta-opcion opcion-filtrable"
-                                data-tipo="profesional"
-                                data-especialidad="{{ profesional.especialidad_id }}"
-                            >
-                                <input
-                                    type="radio"
-                                    name="profesional"
-                                    value="{{ profesional.id }}"
-                                >
 
-                                <span class="avatar-profesional">
-                                    {{ profesional.nombres|slice:":1" }}{{ profesional.apellidos|slice:":1" }}
-                                </span>
+                        <div class="estado-vacio">
+                            <span>👥</span>
 
-                                <strong>
-                                    {{ profesional.nombre_completo }}
-                                </strong>
+                            <strong>
+                                Selecciona una especialidad
+                            </strong>
 
-                                <small>
-                                    {{ profesional.especialidad.nombre }}
-                                </small>
-                            </label>
-                        {% empty %}
-                            <div class="mensaje-vacio">
-                                No hay profesionales disponibles.
-                            </div>
-                        {% endfor %}
+                            <p>
+                                Aquí aparecerán los profesionales
+                                disponibles.
+                            </p>
+                        </div>
+
                     </div>
+
 
                     {% for error in formulario.profesional.errors %}
-                        <small class="error-general">
+                        <div class="error-bloque">
                             {{ error }}
-                        </small>
+                        </div>
                     {% endfor %}
 
+
                     <div class="acciones-paso">
+
                         <button
-                            class="boton-secundario"
                             type="button"
-                            data-anterior="2"
+                            class="boton boton-secundario"
+                            data-anterior
                         >
-                            Atrás
+                            ← Regresar
                         </button>
 
                         <button
-                            class="boton-principal"
                             type="button"
-                            data-siguiente="4"
+                            class="boton boton-principal"
+                            data-siguiente
                         >
-                            Continuar
+                            Ver disponibilidad →
                         </button>
+
                     </div>
-                </article>
-            </section>
 
-            <!-- PASO 4 -->
-            <section
-                class="paso-formulario"
-                data-paso="4"
-            >
-                <article class="tarjeta-formulario">
-                    <div class="encabezado-paso">
-                        <span class="numero-paso">04</span>
+                </section>
+
+
+                <!-- PASO 4 -->
+                <section
+                    class="paso-formulario"
+                    data-paso="4"
+                >
+
+                    <div class="cabecera-paso">
+                        <span class="cabecera-paso-icono">
+                            📅
+                        </span>
 
                         <div>
-                            <h2>Fecha y hora</h2>
+                            <span class="numero-paso">
+                                Paso 4 de 5
+                            </span>
 
-                            <p>
-                                Selecciona cuándo deseas recibir la atención.
+                            <h2>
+                                Selecciona una fecha y horario
+                            </h2>
+
+                            <p id="texto-profesional-seleccionado">
+                                Escoge una fecha disponible.
                             </p>
                         </div>
                     </div>
 
-                    <div class="cuadricula-campos">
-                        <div class="grupo-campo">
-                            <label
-                                for="{{ formulario.fecha.id_for_label }}"
-                            >
-                                Fecha de la cita *
-                            </label>
 
-                            {{ formulario.fecha }}
+                    <div class="agenda-contenedor">
 
-                            {% for error in formulario.fecha.errors %}
-                                <small class="error-campo">
-                                    {{ error }}
-                                </small>
-                            {% endfor %}
-                        </div>
+                        <div class="calendario">
 
-                        <div class="grupo-campo">
-                            <label
-                                for="{{ formulario.hora.id_for_label }}"
-                            >
-                                Hora de la cita *
-                            </label>
+                            <div class="calendario-cabecera">
 
-                            {{ formulario.hora }}
-
-                            {% for error in formulario.hora.errors %}
-                                <small class="error-campo">
-                                    {{ error }}
-                                </small>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <div class="nota-informativa">
-                        El sistema comprobará que el profesional
-                        no tenga otra cita registrada en la misma
-                        fecha y hora.
-                    </div>
-
-                    <div class="acciones-paso">
-                        <button
-                            class="boton-secundario"
-                            type="button"
-                            data-anterior="3"
-                        >
-                            Atrás
-                        </button>
-
-                        <button
-                            class="boton-principal"
-                            type="button"
-                            data-siguiente="5"
-                        >
-                            Agendar turno
-                        </button>
-                    </div>
-                </article>
-            </section>
-
-            <!-- PASO 5 -->
-            <section
-                class="paso-formulario"
-                data-paso="5"
-            >
-                <article class="tarjeta-formulario">
-                    <div class="encabezado-paso">
-                        <span class="numero-paso">05</span>
-
-                        <div>
-                            <h2>Anticipo y confirmación</h2>
-
-                            <p>
-                                Para reservar el turno se registra
-                                un anticipo del 20 %.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="aviso-anticipo">
-                        <span>!</span>
-
-                        <p>
-                            Debes pagar el 20 % del valor del servicio.
-                            El 80 % restante se pagará presencialmente.
-                        </p>
-                    </div>
-
-                    <div class="resumen-pago">
-                        <div>
-                            <span>Servicio</span>
-
-                            <strong id="resumen-servicio">
-                                Sin seleccionar
-                            </strong>
-                        </div>
-
-                        <div>
-                            <span>Valor total</span>
-
-                            <strong id="resumen-total">
-                                $0.00
-                            </strong>
-                        </div>
-
-                        <div>
-                            <span>Anticipo 20 %</span>
-
-                            <strong id="resumen-anticipo">
-                                $0.00
-                            </strong>
-                        </div>
-
-                        <div>
-                            <span>Saldo pendiente</span>
-
-                            <strong id="resumen-saldo">
-                                $0.00
-                            </strong>
-                        </div>
-                    </div>
-
-                    <h3 class="titulo-opciones">
-                        Selecciona el método de pago
-                    </h3>
-
-                    <div class="metodos-pago">
-                        {% for valor, texto in formulario.metodo_pago.field.choices %}
-                            <label class="metodo-pago">
-                                <input
-                                    type="radio"
-                                    name="metodo_pago"
-                                    value="{{ valor }}"
+                                <button
+                                    type="button"
+                                    class="boton-mes"
+                                    id="mes-anterior"
+                                    aria-label="Mes anterior"
                                 >
+                                    ‹
+                                </button>
 
-                                <span class="icono-metodo">
-                                    {% if valor == "TRANSFERENCIA" %}
-                                        ↗
-                                    {% else %}
-                                        ▣
-                                    {% endif %}
+                                <h3 id="titulo-mes">
+                                    Calendario
+                                </h3>
+
+                                <button
+                                    type="button"
+                                    class="boton-mes"
+                                    id="mes-siguiente"
+                                    aria-label="Mes siguiente"
+                                >
+                                    ›
+                                </button>
+
+                            </div>
+
+
+                            <div class="dias-semana">
+                                <span>Lun</span>
+                                <span>Mar</span>
+                                <span>Mié</span>
+                                <span>Jue</span>
+                                <span>Vie</span>
+                                <span>Sáb</span>
+                                <span>Dom</span>
+                            </div>
+
+
+                            <div
+                                class="calendario-dias"
+                                id="calendario-dias"
+                            >
+
+                                <div class="estado-vacio calendario-vacio">
+                                    <span>📆</span>
+
+                                    <strong>
+                                        Calendario pendiente
+                                    </strong>
+
+                                    <p>
+                                        Selecciona un profesional
+                                        para consultar su agenda.
+                                    </p>
+                                </div>
+
+                            </div>
+
+
+                            <div class="leyenda-calendario">
+
+                                <span>
+                                    <i class="leyenda-color disponible"></i>
+                                    Disponible
                                 </span>
 
                                 <span>
-                                    <strong>{{ texto }}</strong>
-
-                                    {% if valor == "TRANSFERENCIA" %}
-                                        <small>
-                                            Registra el número de referencia
-                                            de la transferencia.
-                                        </small>
-                                    {% else %}
-                                        <small>
-                                            La pasarela segura se integrará
-                                            en una fase posterior.
-                                        </small>
-                                    {% endif %}
+                                    <i class="leyenda-color separada"></i>
+                                    Separada
                                 </span>
-                            </label>
-                        {% endfor %}
-                    </div>
 
-                    {% for error in formulario.metodo_pago.errors %}
-                        <small class="error-general">
-                            {{ error }}
-                        </small>
-                    {% endfor %}
+                                <span>
+                                    <i class="leyenda-color sin-atencion"></i>
+                                    No atiende
+                                </span>
 
-                    <div
-                        class="detalle-pago oculto"
-                        id="detalle-transferencia"
-                    >
-                        <h3>Datos para transferencia</h3>
+                                <span>
+                                    <i class="leyenda-color seleccionada"></i>
+                                    Seleccionada
+                                </span>
 
-                        <div class="datos-bancarios">
-                            <p>
-                                <span>Banco</span>
-                                <strong>Banco de ejemplo</strong>
-                            </p>
+                            </div>
 
-                            <p>
-                                <span>Tipo de cuenta</span>
-                                <strong>Cuenta de ahorros</strong>
-                            </p>
-
-                            <p>
-                                <span>Número de cuenta</span>
-                                <strong>0000000000</strong>
-                            </p>
-
-                            <p>
-                                <span>Titular</span>
-                                <strong>Centro de atención</strong>
-                            </p>
                         </div>
 
-                        <div class="grupo-campo">
-                            <label
-                                for="{{ formulario.referencia_pago.id_for_label }}"
+
+                        <div class="panel-horarios">
+
+                            <div class="panel-horarios-cabecera">
+                                <span>🕐</span>
+
+                                <div>
+                                    <h3>
+                                        Horarios disponibles
+                                    </h3>
+
+                                    <p id="fecha-horarios">
+                                        Selecciona una fecha verde.
+                                    </p>
+                                </div>
+                            </div>
+
+
+                            <div
+                                class="estado-cargando oculto"
+                                id="cargando-horarios"
                             >
-                                Referencia de transferencia *
-                            </label>
+                                <span class="cargador"></span>
+                                <p>Cargando horarios...</p>
+                            </div>
 
-                            {{ formulario.referencia_pago }}
 
-                            {% for error in formulario.referencia_pago.errors %}
+                            <div
+                                class="lista-horarios"
+                                id="lista-horarios"
+                            >
+
+                                <div class="estado-vacio">
+                                    <span>⏱️</span>
+
+                                    <strong>
+                                        Sin fecha seleccionada
+                                    </strong>
+
+                                    <p>
+                                        Los horarios libres aparecerán aquí.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {% for error in formulario.fecha.errors %}
+                        <div class="error-bloque">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                    {% for error in formulario.hora.errors %}
+                        <div class="error-bloque">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+
+                    <div class="acciones-paso">
+
+                        <button
+                            type="button"
+                            class="boton boton-secundario"
+                            data-anterior
+                        >
+                            ← Regresar
+                        </button>
+
+                        <button
+                            type="button"
+                            class="boton boton-principal"
+                            data-siguiente
+                        >
+                            Continuar al pago →
+                        </button>
+
+                    </div>
+
+                </section>
+
+
+                <!-- PASO 5 -->
+                <section
+                    class="paso-formulario"
+                    data-paso="5"
+                >
+
+                    <div class="cabecera-paso">
+                        <span class="cabecera-paso-icono">
+                            💳
+                        </span>
+
+                        <div>
+                            <span class="numero-paso">
+                                Paso 5 de 5
+                            </span>
+
+                            <h2>
+                                Resumen y pago
+                            </h2>
+
+                            <p>
+                                Revisa la información y selecciona
+                                cómo realizarás el anticipo.
+                            </p>
+                        </div>
+                    </div>
+
+
+                    <div class="resumen-pago">
+
+                        <div class="resumen-cita">
+
+                            <h3>Resumen de la cita</h3>
+
+                            <div class="fila-resumen">
+                                <span>Usuario</span>
+                                <strong id="resumen-usuario">
+                                    Sin información
+                                </strong>
+                            </div>
+
+                            <div class="fila-resumen">
+                                <span>Especialidad</span>
+                                <strong id="resumen-especialidad">
+                                    Sin seleccionar
+                                </strong>
+                            </div>
+
+                            <div class="fila-resumen">
+                                <span>Profesional</span>
+                                <strong id="resumen-profesional">
+                                    Sin seleccionar
+                                </strong>
+                            </div>
+
+                            <div class="fila-resumen">
+                                <span>Fecha</span>
+                                <strong id="resumen-fecha">
+                                    Sin seleccionar
+                                </strong>
+                            </div>
+
+                            <div class="fila-resumen">
+                                <span>Hora</span>
+                                <strong id="resumen-hora">
+                                    Sin seleccionar
+                                </strong>
+                            </div>
+
+
+                            <div class="separador-resumen"></div>
+
+
+                            <div class="fila-resumen fila-valor">
+                                <span>Valor total</span>
+
+                                <strong>
+                                    $<span id="resumen-precio">0.00</span>
+                                </strong>
+                            </div>
+
+                            <div class="fila-resumen">
+                                <span>Anticipo del 20 %</span>
+
+                                <strong class="texto-celeste">
+                                    $<span id="resumen-anticipo">0.00</span>
+                                </strong>
+                            </div>
+
+                            <div class="fila-resumen">
+                                <span>Saldo pendiente</span>
+
+                                <strong>
+                                    $<span id="resumen-saldo">0.00</span>
+                                </strong>
+                            </div>
+
+                            <small class="nota-saldo">
+                                El saldo pendiente se paga
+                                directamente al recibir la atención.
+                            </small>
+
+                        </div>
+
+
+                        <div class="metodos-pago">
+
+                            <h3>
+                                Método de pago
+                            </h3>
+
+
+                            <div class="opciones-pago">
+
+                                {% for opcion in formulario.metodo_pago %}
+
+                                    <label class="tarjeta-pago">
+
+                                        {{ opcion.tag }}
+
+                                        <span class="tarjeta-pago-contenido">
+
+                                            {% if opcion.data.value == "TRANSFERENCIA" %}
+                                                <span class="pago-icono">
+                                                    🏦
+                                                </span>
+
+                                                <span>
+                                                    <strong>
+                                                        Transferencia
+                                                    </strong>
+
+                                                    <small>
+                                                        Registra el número
+                                                        del comprobante.
+                                                    </small>
+                                                </span>
+
+                                            {% else %}
+
+                                                <span class="pago-icono">
+                                                    💳
+                                                </span>
+
+                                                <span>
+                                                    <strong>
+                                                        Tarjeta
+                                                    </strong>
+
+                                                    <small>
+                                                        Pago con tarjeta de
+                                                        débito o crédito.
+                                                    </small>
+                                                </span>
+
+                                            {% endif %}
+
+                                        </span>
+
+                                        <span class="marca-pago">
+                                            ✓
+                                        </span>
+
+                                    </label>
+
+                                {% endfor %}
+
+                            </div>
+
+
+                            {% for error in formulario.metodo_pago.errors %}
                                 <small class="error-campo">
                                     {{ error }}
                                 </small>
                             {% endfor %}
+
+
+                            <div
+                                class="grupo-campo campo-referencia oculto"
+                                id="contenedor-referencia"
+                            >
+
+                                <label for="{{ formulario.referencia_pago.id_for_label }}">
+                                    Número de comprobante o referencia
+                                </label>
+
+                                {{ formulario.referencia_pago }}
+
+                                {% for error in formulario.referencia_pago.errors %}
+                                    <small class="error-campo">
+                                        {{ error }}
+                                    </small>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <div class="aviso-pago">
+                                <span>🔒</span>
+
+                                <p>
+                                    No guardamos números de tarjetas.
+                                    El pago real será conectado posteriormente
+                                    mediante una plataforma segura.
+                                </p>
+                            </div>
+
                         </div>
+
                     </div>
 
-                    <div
-                        class="detalle-pago oculto"
-                        id="detalle-tarjeta"
-                    >
-                        <h3>Pago con tarjeta</h3>
 
-                        <p>
-                            Esta opción se encuentra preparada visualmente,
-                            pero todavía no realiza un cobro real.
-                            Después se conectará una pasarela segura.
-                        </p>
-                    </div>
+                    <label class="aceptacion">
+                        <input
+                            type="checkbox"
+                            id="aceptar-condiciones"
+                        >
+
+                        <span>
+                            Confirmo que los datos ingresados
+                            son correctos y acepto las condiciones
+                            de la reserva.
+                        </span>
+                    </label>
+
 
                     <div class="acciones-paso">
+
                         <button
-                            class="boton-secundario"
                             type="button"
-                            data-anterior="4"
+                            class="boton boton-secundario"
+                            data-anterior
                         >
-                            Atrás
+                            ← Regresar
                         </button>
 
                         <button
-                            class="boton-principal"
                             type="submit"
+                            class="boton boton-confirmar"
+                            id="boton-confirmar"
                         >
-                            Finalizar y confirmar cita
+                            Confirmar agendamiento
                         </button>
-                    </div>
-                </article>
-            </section>
-        </form>
-    </main>
 
-    <script src="{% static 'js/agendar.js' %}?v=1"></script>
+                    </div>
+
+                </section>
+
+            </form>
+
+        </section>
+
+
+        <!-- PUBLICIDAD GOOGLE -->
+        <aside class="columna-publicidad publicidad-google">
+
+            <div class="titulo-publicidad">
+                <span>Publicidad</span>
+            </div>
+
+            <div class="google-anuncio">
+
+                <span class="google-etiqueta">
+                    Anuncio
+                </span>
+
+                <div class="google-anuncio-contenido">
+
+                    <span class="google-icono">
+                        G
+                    </span>
+
+                    <strong>
+                        Espacio para Google Ads
+                    </strong>
+
+                    <p>
+                        La publicidad de Google aparecerá
+                        en esta sección cuando la cuenta
+                        esté configurada y aprobada.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+    </div>
+
+
+    <!-- OPINIONES -->
+    <section
+        class="seccion-opiniones"
+        id="opiniones"
+    >
+
+        <div class="cabecera-opiniones">
+
+            <span class="etiqueta-superior">
+                Experiencias reales
+            </span>
+
+            <h2>
+                Opiniones de nuestros usuarios
+            </h2>
+
+            <p>
+                Conoce la experiencia de quienes ya
+                utilizaron nuestra plataforma.
+            </p>
+
+        </div>
+
+
+        <div class="lista-opiniones">
+
+            {% for opinion in opiniones %}
+
+                <article class="tarjeta-opinion">
+
+                    <div class="opinion-superior">
+
+                        <div class="avatar-opinion">
+                            {{ opinion.nombre|slice:":1"|upper }}
+                        </div>
+
+                        <div>
+                            <strong>
+                                {{ opinion.nombre }}
+                            </strong>
+
+                            <span class="estrellas">
+                                {{ opinion.estrellas }}
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <p class="comentario-opinion">
+                        “{{ opinion.comentario }}”
+                    </p>
+
+                    <small class="fecha-opinion">
+                        {{ opinion.creada_en|date:"d/m/Y" }}
+                    </small>
+
+                </article>
+
+            {% empty %}
+
+                <article class="tarjeta-opinion opinion-vacia">
+
+                    <span>⭐</span>
+
+                    <strong>
+                        Próximamente habrá opiniones
+                    </strong>
+
+                    <p>
+                        Las experiencias aprobadas
+                        aparecerán en esta sección.
+                    </p>
+
+                </article>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer class="pie-pagina">
+
+    <p>
+        © {% now "Y" %} Agenda.
+        Todos los derechos reservados.
+    </p>
+
+</footer>
+
+
+<script
+    src="{% static 'js/agendar.js' %}?v=10"
+></script>
+
 </body>
 </html>
