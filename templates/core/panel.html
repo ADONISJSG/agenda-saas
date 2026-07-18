@@ -10,524 +10,619 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Panel administrativo</title>
+    <title>Panel de citas</title>
 
     <link
-    rel="stylesheet"
-    href="{% static 'css/panel.css' %}?v=4"
->
+        rel="stylesheet"
+        href="{% static 'css/panel.css' %}?v=1"
+    >
 </head>
 
 <body>
-    <div class="aplicacion">
-        <aside class="barra-lateral">
+
+<header class="encabezado-panel">
+
+    <div class="encabezado-contenido">
+
+        <a
+            href="{% url 'core:inicio' %}"
+            class="marca"
+        >
+            <span class="marca-icono">A</span>
+
             <div>
-                <a
-                    class="marca"
-                    href="{% url 'core:inicio' %}"
-                >
-                    <span class="marca-icono">
-                        A
-                    </span>
-
-                    <span>
-                        <strong>Agenda</strong>
-                        <small>Panel de gestión</small>
-                    </span>
-                </a>
-
-                <nav class="navegacion">
-                    <p class="titulo-menu">
-                        MENÚ PRINCIPAL
-                    </p>
-
-                    <a
-                        class="enlace-menu activo"
-                        href="{% url 'core:panel' %}"
-                    >
-                        <span class="icono-menu">▦</span>
-                        Resumen
-                    </a>
-
-                    <a
-                        class="enlace-menu"
-                        href="#"
-                    >
-                        <span class="icono-menu">♙</span>
-                        Clientes
-                    </a>
-
-                    <a
-                        class="enlace-menu"
-                        href="#"
-                    >
-                        <span class="icono-menu">♟</span>
-                        Profesionales
-                    </a>
-
-                    <a
-                        class="enlace-menu"
-                        href="#"
-                    >
-                        <span class="icono-menu">◆</span>
-                        Servicios
-                    </a>
-
-                    <a
-                        class="enlace-menu"
-                        href="#"
-                    >
-                        <span class="icono-menu">▣</span>
-                        Citas
-                    </a>
-
-                    <a
-                        class="enlace-menu"
-                        href="#"
-                    >
-                        <span class="icono-menu">▤</span>
-                        Planes
-                    </a>
-
-                    <p class="titulo-menu segundo-menu">
-                        ADMINISTRACIÓN
-                    </p>
-
-                    <a
-                        class="enlace-menu"
-                        href="#"
-                    >
-                        <span class="icono-menu">◎</span>
-                        Seguimiento
-                    </a>
-
-                    <a
-                        class="enlace-menu"
-                        href="#"
-                    >
-                        <span class="icono-menu">!</span>
-                        Alertas
-
-                        <span class="contador-alertas">
-                            3
-                        </span>
-                    </a>
-                </nav>
+                <strong>Agenda</strong>
+                <small>Panel administrativo</small>
             </div>
+        </a>
 
-            <div class="usuario-lateral">
-                <div class="avatar">
+
+        <nav class="navegacion-panel">
+
+            <a
+                href="{% url 'reservas:agendar' %}"
+                target="_blank"
+            >
+                Ver agendamiento
+            </a>
+
+            <a href="/admin/">
+                Administrador
+            </a>
+
+            <div class="usuario-panel">
+
+                <span class="usuario-avatar">
                     {{ iniciales }}
-                </div>
+                </span>
 
-                <div class="datos-usuario">
+                <div>
                     <strong>
                         {{ nombre_usuario }}
                     </strong>
 
-                    <span>
+                    <small>
                         Administrador
-                    </span>
+                    </small>
                 </div>
 
-                <form
-                    class="form-salir"
-                    method="post"
-                    action="{% url 'usuarios:logout' %}"
-                >
-                    {% csrf_token %}
-
-                    <button
-                        class="boton-salir"
-                        type="submit"
-                        title="Cerrar sesión"
-                    >
-                        ↪
-                    </button>
-                </form>
             </div>
-        </aside>
 
-        <main class="contenido-principal">
-            <header class="encabezado-panel">
-                <div>
-                    <p class="saludo">
-                        Bienvenido nuevamente, {{ nombre_usuario }}
-                    </p>
+        </nav>
 
-                    <h1>
-                        Panel principal
-                    </h1>
+    </div>
+
+</header>
+
+
+<main class="pagina-panel">
+
+    {% if messages %}
+
+        <div class="mensajes">
+
+            {% for message in messages %}
+
+                <div class="mensaje mensaje-{{ message.tags }}">
+                    {{ message }}
                 </div>
 
-                <div class="acciones-panel">
-                    <div class="fecha">
-                        <span>▣</span>
-                        {% now "d/m/Y" %}
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+
+    <section class="cabecera-pagina">
+
+        <div>
+            <span class="etiqueta">
+                Resumen general
+            </span>
+
+            <h1>Panel de citas</h1>
+
+            <p>
+                Revisa las reservas, pagos y citas
+                programadas desde un solo lugar.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'reservas:agendar' %}"
+            class="boton boton-principal"
+        >
+            + Nueva cita
+        </a>
+
+    </section>
+
+
+    <section class="tarjetas-estadisticas">
+
+        <article class="tarjeta-estadistica">
+
+            <span class="estadistica-icono">
+                👥
+            </span>
+
+            <div>
+                <small>Usuarios registrados</small>
+
+                <strong>
+                    {{ total_usuarios }}
+                </strong>
+            </div>
+
+        </article>
+
+
+        <article class="tarjeta-estadistica">
+
+            <span class="estadistica-icono">
+                📅
+            </span>
+
+            <div>
+                <small>Citas de hoy</small>
+
+                <strong>
+                    {{ total_citas_hoy }}
+                </strong>
+            </div>
+
+        </article>
+
+
+        <article class="tarjeta-estadistica">
+
+            <span class="estadistica-icono">
+                ⏳
+            </span>
+
+            <div>
+                <small>Citas pendientes</small>
+
+                <strong>
+                    {{ citas_pendientes }}
+                </strong>
+            </div>
+
+        </article>
+
+
+        <article class="tarjeta-estadistica">
+
+            <span class="estadistica-icono">
+                💳
+            </span>
+
+            <div>
+                <small>Pagos por verificar</small>
+
+                <strong>
+                    {{ pagos_pendientes }}
+                </strong>
+            </div>
+
+        </article>
+
+
+        <article class="tarjeta-estadistica">
+
+            <span class="estadistica-icono">
+                ✓
+            </span>
+
+            <div>
+                <small>Citas confirmadas</small>
+
+                <strong>
+                    {{ citas_confirmadas }}
+                </strong>
+            </div>
+
+        </article>
+
+
+        <article class="tarjeta-estadistica">
+
+            <span class="estadistica-icono">
+                $
+            </span>
+
+            <div>
+                <small>Anticipos verificados</small>
+
+                <strong>
+                    ${{ anticipos_verificados|floatformat:2 }}
+                </strong>
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <section class="panel-seccion">
+
+        <div class="cabecera-seccion">
+
+            <div>
+                <h2>Próximas citas</h2>
+
+                <p>
+                    Las reservas más cercanas desde hoy.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="lista-proximas">
+
+            {% for cita in proximas_citas %}
+
+                <a
+                    href="{% url 'core:detalle_cita' cita.codigo %}"
+                    class="tarjeta-proxima"
+                >
+
+                    <div class="fecha-proxima">
+
+                        <strong>
+                            {{ cita.fecha|date:"d" }}
+                        </strong>
+
+                        <span>
+                            {{ cita.fecha|date:"M"|upper }}
+                        </span>
+
                     </div>
 
-                    <button
-                        class="boton-notificacion"
-                        type="button"
-                        aria-label="Notificaciones"
+
+                    <div class="informacion-proxima">
+
+                        <strong>
+                            {{ cita.paciente.nombres }}
+                            {{ cita.paciente.apellidos }}
+                        </strong>
+
+                        <span>
+                            {{ cita.servicio.nombre }}
+                        </span>
+
+                        <small>
+                            {{ cita.hora|time:"H:i" }}
+                            ·
+                            {{ cita.profesional.nombres }}
+                            {{ cita.profesional.apellidos }}
+                        </small>
+
+                    </div>
+
+
+                    <span
+                        class="
+                            estado
+                            {% if cita.estado == 'CONFIRMADA' %}
+                                estado-confirmada
+                            {% elif cita.estado == 'COMPLETADA' %}
+                                estado-completada
+                            {% elif cita.estado == 'CANCELADA' %}
+                                estado-cancelada
+                            {% else %}
+                                estado-pendiente
+                            {% endif %}
+                        "
                     >
-                        ♢
-                        <span>3</span>
-                    </button>
+                        {{ cita.get_estado_display }}
+                    </span>
 
-                    <div class="avatar avatar-superior">
-                        {{ iniciales }}
-                    </div>
+                </a>
+
+            {% empty %}
+
+                <div class="estado-vacio">
+                    <span>📆</span>
+
+                    <strong>
+                        No hay próximas citas
+                    </strong>
+
+                    <p>
+                        Las nuevas reservas aparecerán aquí.
+                    </p>
                 </div>
-            </header>
 
-            <section class="tarjetas-resumen">
-                <article class="tarjeta-resumen">
-                    <div class="icono-tarjeta icono-morado">
-                        ♙
-                    </div>
+            {% endfor %}
 
-                    <div>
-                        <p>Total de clientes</p>
-                        <h2>{{ total_clientes }}</h2>
+        </div>
 
-                        <span class="variacion positiva">
-                            ↑ 12% este mes
-                        </span>
-                    </div>
-                </article>
+    </section>
 
-                <article class="tarjeta-resumen">
-                    <div class="icono-tarjeta icono-verde">
-                        ✓
-                    </div>
 
-                    <div>
-                        <p>Clientes activos</p>
-                        <h2>{{ clientes_activos }}</h2>
+    <section class="panel-seccion">
 
-                        <span class="variacion positiva">
-                            ↑ 8% este mes
-                        </span>
-                    </div>
-                </article>
+        <div class="cabecera-seccion">
 
-                <article class="tarjeta-resumen">
-                    <div class="icono-tarjeta icono-azul">
-                        ▣
-                    </div>
+            <div>
+                <h2>Administrar citas</h2>
 
-                    <div>
-                        <p>Citas agendadas</p>
-                        <h2>{{ citas_agendadas }}</h2>
+                <p>
+                    Busca y revisa todas las reservas registradas.
+                </p>
+            </div>
 
-                        <span class="variacion neutral">
-                            Para esta semana
-                        </span>
-                    </div>
-                </article>
+        </div>
 
-                <article class="tarjeta-resumen">
-                    <div class="icono-tarjeta icono-naranja">
-                        ＋
-                    </div>
 
-                    <div>
-                        <p>Nuevos clientes</p>
-                        <h2>{{ nuevos_clientes }}</h2>
+        <form
+            method="get"
+            class="formulario-filtros"
+        >
 
-                        <span class="variacion positiva">
-                            ↑ 5 esta semana
-                        </span>
-                    </div>
-                </article>
-            </section>
+            <div class="campo-filtro campo-busqueda">
 
-            <section class="zona-estadisticas">
-                <article class="tarjeta-panel grafica-citas">
-                    <div class="cabecera-tarjeta">
-                        <div>
-                            <h3>Citas de la semana</h3>
+                <label for="q">
+                    Buscar
+                </label>
 
-                            <p>
-                                Actividad registrada por día
-                            </p>
-                        </div>
+                <input
+                    type="search"
+                    id="q"
+                    name="q"
+                    value="{{ filtros.q }}"
+                    placeholder="Usuario, identificación, servicio..."
+                >
 
-                        <select aria-label="Periodo de citas">
-                            <option>Esta semana</option>
-                            <option>Este mes</option>
-                        </select>
-                    </div>
+            </div>
 
-                    <div class="grafica-barras">
-                        <div class="columna">
-                            <span class="valor">6</span>
-                            <div class="barra altura-40"></div>
-                            <small>Lun</small>
-                        </div>
 
-                        <div class="columna">
-                            <span class="valor">10</span>
-                            <div class="barra altura-65"></div>
-                            <small>Mar</small>
-                        </div>
+            <div class="campo-filtro">
 
-                        <div class="columna">
-                            <span class="valor">8</span>
-                            <div class="barra altura-52"></div>
-                            <small>Mié</small>
-                        </div>
+                <label for="estado">
+                    Estado
+                </label>
 
-                        <div class="columna">
-                            <span class="valor">12</span>
-                            <div class="barra altura-80"></div>
-                            <small>Jue</small>
-                        </div>
+                <select
+                    id="estado"
+                    name="estado"
+                >
 
-                        <div class="columna">
-                            <span class="valor">9</span>
-                            <div class="barra altura-60"></div>
-                            <small>Vie</small>
-                        </div>
+                    <option value="">
+                        Todos
+                    </option>
 
-                        <div class="columna">
-                            <span class="valor">5</span>
-                            <div class="barra altura-34"></div>
-                            <small>Sáb</small>
-                        </div>
+                    {% for valor, nombre in estados_cita %}
 
-                        <div class="columna">
-                            <span class="valor">3</span>
-                            <div class="barra altura-20"></div>
-                            <small>Dom</small>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="tarjeta-panel grafica-crecimiento">
-                    <div class="cabecera-tarjeta">
-                        <div>
-                            <h3>
-                                Crecimiento de clientes
-                            </h3>
-
-                            <p>
-                                Nuevos registros mensuales
-                            </p>
-                        </div>
-
-                        <span class="indicador-crecimiento">
-                            +18.5%
-                        </span>
-                    </div>
-
-                    <div class="contenedor-linea">
-                        <svg
-                            class="grafica-linea"
-                            viewBox="0 0 500 220"
-                            role="img"
-                            aria-label="Crecimiento mensual de clientes"
+                        <option
+                            value="{{ valor }}"
+                            {% if filtros.estado == valor %}
+                                selected
+                            {% endif %}
                         >
-                            <defs>
-                                <linearGradient
-                                    id="rellenoGrafica"
-                                    x1="0"
-                                    y1="0"
-                                    x2="0"
-                                    y2="1"
-                                >
-                                    <stop
-                                        offset="0%"
-                                        stop-color="#0ea5e9"
-                                        stop-opacity="0.35"
-                                    />
+                            {{ nombre }}
+                        </option>
 
-                                    <stop
-                                        offset="100%"
-                                        stop-color="#0ea5e9"
-                                        stop-opacity="0"
-                                    />
-                                </linearGradient>
-                            </defs>
+                    {% endfor %}
 
-                            <line
-                                x1="20"
-                                y1="40"
-                                x2="480"
-                                y2="40"
-                            />
+                </select>
 
-                            <line
-                                x1="20"
-                                y1="90"
-                                x2="480"
-                                y2="90"
-                            />
+            </div>
 
-                            <line
-                                x1="20"
-                                y1="140"
-                                x2="480"
-                                y2="140"
-                            />
 
-                            <line
-                                x1="20"
-                                y1="190"
-                                x2="480"
-                                y2="190"
-                            />
+            <div class="campo-filtro">
 
-                            <path
-                                class="area-linea"
-                                d="
-                                    M20 175
-                                    L95 155
-                                    L170 160
-                                    L245 115
-                                    L320 125
-                                    L395 75
-                                    L480 45
-                                    L480 200
-                                    L20 200
-                                    Z
-                                "
-                            />
+                <label for="fecha">
+                    Fecha
+                </label>
 
-                            <polyline
-                                class="linea-principal"
-                                points="
-                                    20,175
-                                    95,155
-                                    170,160
-                                    245,115
-                                    320,125
-                                    395,75
-                                    480,45
-                                "
-                            />
+                <input
+                    type="date"
+                    id="fecha"
+                    name="fecha"
+                    value="{{ filtros.fecha }}"
+                >
 
-                            <circle cx="20" cy="175" r="5"/>
-                            <circle cx="95" cy="155" r="5"/>
-                            <circle cx="170" cy="160" r="5"/>
-                            <circle cx="245" cy="115" r="5"/>
-                            <circle cx="320" cy="125" r="5"/>
-                            <circle cx="395" cy="75" r="5"/>
-                            <circle cx="480" cy="45" r="5"/>
-                        </svg>
+            </div>
 
-                        <div class="meses">
-                            <span>Ene</span>
-                            <span>Feb</span>
-                            <span>Mar</span>
-                            <span>Abr</span>
-                            <span>May</span>
-                            <span>Jun</span>
-                            <span>Jul</span>
-                        </div>
-                    </div>
-                </article>
-            </section>
 
-            <section class="zona-inferior">
-                <article class="tarjeta-panel proximas-citas">
-                    <div class="cabecera-tarjeta">
-                        <div>
-                            <h3>Próximas citas</h3>
+            <div class="acciones-filtros">
 
-                            <p>
-                                Agenda programada para hoy
-                            </p>
-                        </div>
+                <button
+                    type="submit"
+                    class="boton boton-principal"
+                >
+                    Filtrar
+                </button>
 
-                        <a href="#">
-                            Ver todas
-                        </a>
-                    </div>
+                <a
+                    href="{% url 'core:panel' %}"
+                    class="boton boton-secundario"
+                >
+                    Limpiar
+                </a>
 
-                    <div class="lista-citas">
-                        {% for cita in proximas_citas %}
-                            <div class="fila-cita">
-                                <div class="hora-cita">
-                                    {{ cita.hora }}
-                                </div>
+            </div>
 
-                                <div class="avatar-cliente">
-                                    {{ cita.cliente|slice:":1" }}
-                                </div>
+        </form>
 
-                                <div class="informacion-cita">
-                                    <strong>
-                                        {{ cita.cliente }}
-                                    </strong>
 
-                                    <span>
-                                        {{ cita.servicio }}
-                                        ·
-                                        {{ cita.profesional }}
-                                    </span>
-                                </div>
+        <div class="contenedor-tabla">
+
+            <table class="tabla-citas">
+
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Fecha y hora</th>
+                        <th>Servicio</th>
+                        <th>Profesional</th>
+                        <th>Pago</th>
+                        <th>Estado</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for cita in pagina_citas %}
+
+                        <tr>
+
+                            <td>
+
+                                <strong>
+                                    {{ cita.paciente.nombres }}
+                                    {{ cita.paciente.apellidos }}
+                                </strong>
+
+                                <small>
+                                    {{ cita.paciente.cedula }}
+                                </small>
+
+                            </td>
+
+
+                            <td>
+
+                                <strong>
+                                    {{ cita.fecha|date:"d/m/Y" }}
+                                </strong>
+
+                                <small>
+                                    {{ cita.hora|time:"H:i" }}
+                                </small>
+
+                            </td>
+
+
+                            <td>
+
+                                <strong>
+                                    {{ cita.servicio.nombre }}
+                                </strong>
+
+                                <small>
+                                    {{ cita.especialidad.nombre }}
+                                </small>
+
+                            </td>
+
+
+                            <td>
+
+                                <strong>
+                                    {{ cita.profesional.nombres }}
+                                    {{ cita.profesional.apellidos }}
+                                </strong>
+
+                            </td>
+
+
+                            <td>
 
                                 <span
-                                    class="estado-cita {{ cita.clase_estado }}"
+                                    class="
+                                        estado-pago
+                                        {% if cita.estado_pago == 'VERIFICADO' %}
+                                            pago-verificado
+                                        {% elif cita.estado_pago == 'RECHAZADO' %}
+                                            pago-rechazado
+                                        {% else %}
+                                            pago-pendiente
+                                        {% endif %}
+                                    "
                                 >
-                                    {{ cita.estado }}
+                                    {{ cita.get_estado_pago_display }}
                                 </span>
 
-                                <button
-                                    class="mas-opciones"
-                                    type="button"
-                                    aria-label="Más opciones"
+                                <small>
+                                    ${{ cita.anticipo|floatformat:2 }}
+                                </small>
+
+                            </td>
+
+
+                            <td>
+
+                                <span
+                                    class="
+                                        estado
+                                        {% if cita.estado == 'CONFIRMADA' %}
+                                            estado-confirmada
+                                        {% elif cita.estado == 'COMPLETADA' %}
+                                            estado-completada
+                                        {% elif cita.estado == 'CANCELADA' %}
+                                            estado-cancelada
+                                        {% else %}
+                                            estado-pendiente
+                                        {% endif %}
+                                    "
                                 >
-                                    ⋮
-                                </button>
-                            </div>
-                        {% empty %}
-                            <p>
-                                No hay citas programadas.
-                            </p>
-                        {% endfor %}
-                    </div>
-                </article>
+                                    {{ cita.get_estado_display }}
+                                </span>
 
-                <article class="tarjeta-panel resumen-dia">
-                    <div class="cabecera-tarjeta">
-                        <div>
-                            <h3>Resumen del día</h3>
-                            <p>Estado de las citas</p>
-                        </div>
-                    </div>
+                            </td>
 
-                    <div class="circulo-progreso">
-                        <div class="centro-circulo">
-                            <strong>75%</strong>
-                            <span>Completado</span>
-                        </div>
-                    </div>
 
-                    <div class="detalle-resumen">
-                        <div>
-                            <span class="punto punto-verde"></span>
-                            Completadas
-                            <strong>12</strong>
-                        </div>
+                            <td>
 
-                        <div>
-                            <span class="punto punto-morado"></span>
-                            Pendientes
-                            <strong>4</strong>
-                        </div>
+                                <a
+                                    href="{% url 'core:detalle_cita' cita.codigo %}"
+                                    class="boton-ver"
+                                >
+                                    Ver detalles
+                                </a>
 
-                        <div>
-                            <span class="punto punto-rojo"></span>
-                            Canceladas
-                            <strong>2</strong>
-                        </div>
-                    </div>
-                </article>
-            </section>
-        </main>
-    </div>
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                                class="tabla-vacia"
+                            >
+                                No se encontraron citas.
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {% if pagina_citas.paginator.num_pages > 1 %}
+
+            <nav class="paginacion">
+
+                {% if pagina_citas.has_previous %}
+
+                    <a
+                        href="?pagina={{ pagina_citas.previous_page_number }}&q={{ filtros.q|urlencode }}&estado={{ filtros.estado|urlencode }}&fecha={{ filtros.fecha|urlencode }}"
+                    >
+                        ← Anterior
+                    </a>
+
+                {% endif %}
+
+
+                <span>
+                    Página
+                    {{ pagina_citas.number }}
+                    de
+                    {{ pagina_citas.paginator.num_pages }}
+                </span>
+
+
+                {% if pagina_citas.has_next %}
+
+                    <a
+                        href="?pagina={{ pagina_citas.next_page_number }}&q={{ filtros.q|urlencode }}&estado={{ filtros.estado|urlencode }}&fecha={{ filtros.fecha|urlencode }}"
+                    >
+                        Siguiente →
+                    </a>
+
+                {% endif %}
+
+            </nav>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
 </body>
 </html>

@@ -1,0 +1,455 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Detalle de la cita</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/panel.css' %}?v=1"
+    >
+</head>
+
+<body>
+
+<header class="encabezado-panel">
+
+    <div class="encabezado-contenido">
+
+        <a
+            href="{% url 'core:panel' %}"
+            class="marca"
+        >
+            <span class="marca-icono">A</span>
+
+            <div>
+                <strong>Agenda</strong>
+                <small>Detalle de la cita</small>
+            </div>
+        </a>
+
+
+        <a
+            href="{% url 'core:panel' %}"
+            class="boton boton-secundario"
+        >
+            ← Regresar al panel
+        </a>
+
+    </div>
+
+</header>
+
+
+<main class="pagina-detalle">
+
+    {% if messages %}
+
+        <div class="mensajes">
+
+            {% for message in messages %}
+
+                <div class="mensaje mensaje-{{ message.tags }}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+
+    <section class="cabecera-detalle">
+
+        <div>
+
+            <span class="etiqueta">
+                Código
+                {{ cita.codigo|stringformat:"s"|slice:":8"|upper }}
+            </span>
+
+            <h1>Detalle de la cita</h1>
+
+            <p>
+                Registrada el
+                {{ cita.creada_en|date:"d/m/Y" }}
+                a las
+                {{ cita.creada_en|time:"H:i" }}.
+            </p>
+
+        </div>
+
+
+        <span
+            class="
+                estado estado-grande
+                {% if cita.estado == 'CONFIRMADA' %}
+                    estado-confirmada
+                {% elif cita.estado == 'COMPLETADA' %}
+                    estado-completada
+                {% elif cita.estado == 'CANCELADA' %}
+                    estado-cancelada
+                {% else %}
+                    estado-pendiente
+                {% endif %}
+            "
+        >
+            {{ cita.get_estado_display }}
+        </span>
+
+    </section>
+
+
+    <div class="distribucion-detalle">
+
+        <div class="columna-detalle">
+
+            <section class="panel-seccion">
+
+                <div class="cabecera-seccion">
+                    <div>
+                        <h2>Información del usuario</h2>
+
+                        <p>
+                            Datos de quien recibirá la atención.
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class="cuadricula-detalle">
+
+                    <div class="dato-detalle">
+                        <span>Nombre completo</span>
+
+                        <strong>
+                            {{ cita.paciente.nombres }}
+                            {{ cita.paciente.apellidos }}
+                        </strong>
+                    </div>
+
+
+                    <div class="dato-detalle">
+                        <span>Identificación</span>
+
+                        <strong>
+                            {{ cita.paciente.cedula }}
+                        </strong>
+                    </div>
+
+
+                    <div class="dato-detalle">
+                        <span>Celular</span>
+
+                        <strong>
+                            {{ cita.paciente.celular }}
+                        </strong>
+                    </div>
+
+
+                    <div class="dato-detalle">
+                        <span>Correo</span>
+
+                        <strong>
+                            {{ cita.paciente.correo|default:"No registrado" }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="panel-seccion">
+
+                <div class="cabecera-seccion">
+                    <div>
+                        <h2>Información de la atención</h2>
+
+                        <p>
+                            Servicio, profesional, fecha y hora.
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class="cuadricula-detalle">
+
+                    <div class="dato-detalle">
+                        <span>Especialidad</span>
+
+                        <strong>
+                            {{ cita.especialidad.nombre }}
+                        </strong>
+                    </div>
+
+
+                    <div class="dato-detalle">
+                        <span>Servicio</span>
+
+                        <strong>
+                            {{ cita.servicio.nombre }}
+                        </strong>
+                    </div>
+
+
+                    <div class="dato-detalle">
+                        <span>Profesional</span>
+
+                        <strong>
+                            {{ cita.profesional.nombres }}
+                            {{ cita.profesional.apellidos }}
+                        </strong>
+                    </div>
+
+
+                    <div class="dato-detalle">
+                        <span>Fecha y hora</span>
+
+                        <strong>
+                            {{ cita.fecha|date:"d/m/Y" }}
+                            ·
+                            {{ cita.hora|time:"H:i" }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="panel-seccion">
+
+                <div class="cabecera-seccion">
+                    <div>
+                        <h2>Información del pago</h2>
+
+                        <p>
+                            Valores y comprobante de la reserva.
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class="resumen-pago-detalle">
+
+                    <div>
+                        <span>Valor del servicio</span>
+
+                        <strong>
+                            ${{ cita.valor_servicio|floatformat:2 }}
+                        </strong>
+                    </div>
+
+
+                    <div class="pago-destacado">
+                        <span>Anticipo</span>
+
+                        <strong>
+                            ${{ cita.anticipo|floatformat:2 }}
+                        </strong>
+                    </div>
+
+
+                    <div>
+                        <span>Saldo pendiente</span>
+
+                        <strong>
+                            ${{ cita.saldo_pendiente|floatformat:2 }}
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="cuadricula-detalle">
+
+                    <div class="dato-detalle">
+                        <span>Método de pago</span>
+
+                        <strong>
+                            {{ cita.get_metodo_pago_display }}
+                        </strong>
+                    </div>
+
+
+                    <div class="dato-detalle">
+                        <span>Estado del pago</span>
+
+                        <strong>
+                            {{ cita.get_estado_pago_display }}
+                        </strong>
+                    </div>
+
+
+                    <div class="dato-detalle dato-completo">
+                        <span>
+                            Comprobante o referencia
+                        </span>
+
+                        <strong>
+                            {{ cita.referencia_pago|default:"No registrado" }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <aside class="columna-acciones">
+
+            <section class="panel-seccion panel-acciones">
+
+                <div class="cabecera-seccion">
+                    <div>
+                        <h2>Administrar cita</h2>
+
+                        <p>
+                            Verifica el pago o cambia el estado.
+                        </p>
+                    </div>
+                </div>
+
+
+                {% if cita.estado_pago == "PENDIENTE" %}
+
+                    <form
+                        method="post"
+                        action="{% url 'core:actualizar_cita' cita.codigo %}"
+                    >
+                        {% csrf_token %}
+
+                        <input
+                            type="hidden"
+                            name="accion"
+                            value="verificar_pago"
+                        >
+
+                        <button
+                            type="submit"
+                            class="boton-accion accion-verificar"
+                        >
+                            ✓ Verificar pago
+                        </button>
+                    </form>
+
+
+                    <form
+                        method="post"
+                        action="{% url 'core:actualizar_cita' cita.codigo %}"
+                    >
+                        {% csrf_token %}
+
+                        <input
+                            type="hidden"
+                            name="accion"
+                            value="rechazar_pago"
+                        >
+
+                        <button
+                            type="submit"
+                            class="boton-accion accion-rechazar"
+                        >
+                            ✕ Rechazar pago
+                        </button>
+                    </form>
+
+                {% endif %}
+
+
+                {% if cita.estado == "PENDIENTE_VERIFICACION" %}
+
+                    <form
+                        method="post"
+                        action="{% url 'core:actualizar_cita' cita.codigo %}"
+                    >
+                        {% csrf_token %}
+
+                        <input
+                            type="hidden"
+                            name="accion"
+                            value="confirmar_cita"
+                        >
+
+                        <button
+                            type="submit"
+                            class="boton-accion accion-confirmar"
+                        >
+                            Confirmar cita
+                        </button>
+                    </form>
+
+                {% endif %}
+
+
+                {% if cita.estado == "CONFIRMADA" %}
+
+                    <form
+                        method="post"
+                        action="{% url 'core:actualizar_cita' cita.codigo %}"
+                    >
+                        {% csrf_token %}
+
+                        <input
+                            type="hidden"
+                            name="accion"
+                            value="completar_cita"
+                        >
+
+                        <button
+                            type="submit"
+                            class="boton-accion accion-completar"
+                        >
+                            Marcar como completada
+                        </button>
+                    </form>
+
+                {% endif %}
+
+
+                {% if cita.estado != "CANCELADA" and cita.estado != "COMPLETADA" %}
+
+                    <form
+                        method="post"
+                        action="{% url 'core:actualizar_cita' cita.codigo %}"
+                    >
+                        {% csrf_token %}
+
+                        <input
+                            type="hidden"
+                            name="accion"
+                            value="cancelar_cita"
+                        >
+
+                        <button
+                            type="submit"
+                            class="boton-accion accion-cancelar"
+                        >
+                            Cancelar cita
+                        </button>
+                    </form>
+
+                {% endif %}
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</main>
+
+</body>
+</html>
