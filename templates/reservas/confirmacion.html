@@ -1,0 +1,378 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Cita registrada</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/confirmacion.css' %}?v=1"
+    >
+</head>
+
+<body>
+
+<header class="encabezado">
+    <div class="encabezado-contenido">
+
+        <a href="/" class="marca">
+            <span class="marca-icono">A</span>
+
+            <div>
+                <strong>Agenda</strong>
+                <small>Gestión de citas</small>
+            </div>
+        </a>
+
+        <a
+            href="{% url 'reservas:agendar' %}"
+            class="enlace-nueva-cita"
+        >
+            Agendar otra cita
+        </a>
+
+    </div>
+</header>
+
+
+<main class="pagina-confirmacion">
+
+    <section class="tarjeta-confirmacion">
+
+        <div class="resultado-confirmacion">
+
+            <div class="icono-confirmacion">
+                ✓
+            </div>
+
+            <span class="etiqueta-confirmacion">
+                Agendamiento registrado
+            </span>
+
+            <h1>
+                ¡Tu cita fue registrada correctamente!
+            </h1>
+
+            <p>
+                Hemos guardado la información de tu reserva.
+                Revisa los detalles antes de cerrar esta página.
+            </p>
+
+        </div>
+
+
+        <div class="codigo-reserva">
+
+            <span>Código de la reserva</span>
+
+            <strong>
+                {{ cita.id }}
+            </strong>
+
+        </div>
+
+
+        <section class="seccion-detalles">
+
+            <div class="titulo-seccion">
+
+                <span>📅</span>
+
+                <div>
+                    <h2>Detalles de la cita</h2>
+
+                    <p>
+                        Información registrada para tu atención.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="cuadricula-detalles">
+
+                <div class="detalle">
+                    <span>Usuario</span>
+
+                    <strong>
+                        {{ cita.paciente.nombres }}
+                        {{ cita.paciente.apellidos }}
+                    </strong>
+                </div>
+
+
+                <div class="detalle">
+                    <span>Identificación</span>
+
+                    <strong>
+                        {{ cita.paciente.cedula }}
+                    </strong>
+                </div>
+
+
+                <div class="detalle">
+                    <span>Especialidad</span>
+
+                    <strong>
+                        {{ cita.especialidad.nombre }}
+                    </strong>
+                </div>
+
+
+                <div class="detalle">
+                    <span>Profesional</span>
+
+                    <strong>
+                        {{ cita.profesional.nombres }}
+                        {{ cita.profesional.apellidos }}
+                    </strong>
+                </div>
+
+
+                <div class="detalle">
+                    <span>Servicio</span>
+
+                    <strong>
+                        {{ cita.servicio.nombre }}
+                    </strong>
+                </div>
+
+
+                <div class="detalle">
+                    <span>Fecha</span>
+
+                    <strong>
+                        {{ cita.fecha|date:"d/m/Y" }}
+                    </strong>
+                </div>
+
+
+                <div class="detalle">
+                    <span>Hora</span>
+
+                    <strong>
+                        {{ cita.hora|time:"H:i" }}
+                    </strong>
+                </div>
+
+
+                <div class="detalle">
+                    <span>Estado de la cita</span>
+
+                    <strong class="estado estado-cita">
+                        {{ cita.get_estado_display }}
+                    </strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="seccion-pago">
+
+            <div class="titulo-seccion">
+
+                <span>💳</span>
+
+                <div>
+                    <h2>Información del pago</h2>
+
+                    <p>
+                        Resumen del anticipo y saldo pendiente.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="resumen-valores">
+
+                <div class="valor-pago">
+                    <span>Valor total</span>
+
+                    <strong>
+                        ${{ cita.valor_total|floatformat:2 }}
+                    </strong>
+                </div>
+
+
+                <div class="valor-pago destacado">
+                    <span>Anticipo del 20 %</span>
+
+                    <strong>
+                        ${{ cita.valor_anticipo|floatformat:2 }}
+                    </strong>
+                </div>
+
+
+                <div class="valor-pago">
+                    <span>Saldo pendiente</span>
+
+                    <strong>
+                        ${{ cita.saldo_pendiente|floatformat:2 }}
+                    </strong>
+                </div>
+
+            </div>
+
+
+            <div class="informacion-metodo">
+
+                <div class="detalle">
+                    <span>Método de pago</span>
+
+                    <strong>
+                        {{ cita.get_metodo_pago_display }}
+                    </strong>
+                </div>
+
+
+                <div class="detalle">
+                    <span>Estado del pago</span>
+
+                    <strong class="estado estado-pago">
+                        {{ cita.get_estado_pago_display }}
+                    </strong>
+                </div>
+
+
+                {% if cita.metodo_pago == "TRANSFERENCIA" %}
+
+                    <div class="detalle detalle-completo">
+                        <span>
+                            Número de comprobante o referencia
+                        </span>
+
+                        <strong>
+                            {{ cita.referencia_pago|default:"No registrado" }}
+                        </strong>
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            {% if cita.metodo_pago == "TRANSFERENCIA" %}
+
+                <div class="mensaje-informativo mensaje-transferencia">
+
+                    <span>🏦</span>
+
+                    <p>
+                        Tu reserva fue registrada. El negocio
+                        deberá revisar el comprobante antes de
+                        confirmar definitivamente el pago.
+                    </p>
+
+                </div>
+
+            {% elif cita.metodo_pago == "TARJETA" %}
+
+                <div class="mensaje-informativo mensaje-tarjeta">
+
+                    <span>🔒</span>
+
+                    <p>
+                        Tu reserva fue registrada. El pago con
+                        tarjeta será procesado mediante una
+                        plataforma segura cuando esta opción
+                        se encuentre habilitada.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <section class="recomendaciones">
+
+            <h2>Antes de tu cita</h2>
+
+            <div class="lista-recomendaciones">
+
+                <div class="recomendacion">
+                    <span>1</span>
+
+                    <p>
+                        Guarda el código de la reserva para
+                        cualquier consulta.
+                    </p>
+                </div>
+
+
+                <div class="recomendacion">
+                    <span>2</span>
+
+                    <p>
+                        Procura llegar algunos minutos antes
+                        de la hora seleccionada.
+                    </p>
+                </div>
+
+
+                <div class="recomendacion">
+                    <span>3</span>
+
+                    <p>
+                        Comunícate con el negocio si necesitas
+                        cancelar o cambiar la cita.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <div class="acciones-confirmacion">
+
+            <a
+                href="{% url 'reservas:agendar' %}"
+                class="boton boton-principal"
+            >
+                Agendar otra cita
+            </a>
+
+            <button
+                type="button"
+                class="boton boton-secundario"
+                onclick="window.print()"
+            >
+                Imprimir comprobante
+            </button>
+
+            <a
+                href="/"
+                class="boton boton-inicio"
+            >
+                Volver al inicio
+            </a>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer class="pie-pagina">
+    <p>
+        © {% now "Y" %} Agenda.
+        Todos los derechos reservados.
+    </p>
+</footer>
+
+</body>
+</html>
