@@ -29,6 +29,23 @@ class Especialidad(models.Model):
 
 
 class Profesional(models.Model):
+
+    class TipoCuenta(models.TextChoices):
+        AHORROS = (
+            "AHORROS",
+            "Cuenta de ahorros",
+        )
+
+        CORRIENTE = (
+            "CORRIENTE",
+            "Cuenta corriente",
+        )
+
+        OTRA = (
+            "OTRA",
+            "Otro tipo de cuenta",
+        )
+
     especialidad = models.ForeignKey(
         Especialidad,
         on_delete=models.PROTECT,
@@ -56,6 +73,40 @@ class Profesional(models.Model):
         default=True,
     )
 
+    transferencia_habilitada = models.BooleanField(
+        default=False,
+        help_text=(
+            "Permite que los usuarios paguen el anticipo "
+            "mediante transferencia a este profesional."
+        ),
+    )
+
+    banco = models.CharField(
+        max_length=120,
+        blank=True,
+    )
+
+    tipo_cuenta = models.CharField(
+        max_length=20,
+        choices=TipoCuenta.choices,
+        blank=True,
+    )
+
+    numero_cuenta = models.CharField(
+        max_length=50,
+        blank=True,
+    )
+
+    titular_cuenta = models.CharField(
+        max_length=150,
+        blank=True,
+    )
+
+    identificacion_titular = models.CharField(
+        max_length=30,
+        blank=True,
+    )
+
     class Meta:
         ordering = [
             "apellidos",
@@ -71,6 +122,65 @@ class Profesional(models.Model):
             f"{self.nombres} "
             f"{self.apellidos}"
         ).strip()
+
+    @property
+    def datos_transferencia_completos(self):
+        return all(
+            [
+                self.transferencia_habilitada,
+                self.banco,
+                self.tipo_cuenta,
+                self.numero_cuenta,
+                self.titular_cuenta,
+                self.identificacion_titular,
+            ]
+        )
+
+    def clean(self):
+        super().clean()
+
+        if not self.transferencia_habilitada:
+            return
+
+        errores = {}
+
+        campos_obligatorios = {
+            "banco": "Ingresa el nombre del banco.",
+            "tipo_cuenta": "Selecciona el tipo de cuenta.",
+            "numero_cuenta": "Ingresa el número de cuenta.",
+            "titular_cuenta": (
+                "Ingresa el nombre del titular de la cuenta."
+            ),
+            "identificacion_titular": (
+                "Ingresa la identificación del titular."
+            ),
+        }
+
+        for campo, mensaje in campos_obligatorios.items():
+            valor = getattr(self, campo, "")
+
+            if not valor:
+                errores[campo] = mensaje
+
+        if errores:
+            raise ValidationError(errores)
+
+    def save(self, *args, **kwargs):
+        self.nombres = self.nombres.strip()
+        self.apellidos = self.apellidos.strip()
+        self.telefono = self.telefono.strip()
+        self.correo = self.correo.strip().lower()
+
+        self.banco = self.banco.strip()
+        self.numero_cuenta = self.numero_cuenta.strip()
+        self.titular_cuenta = self.titular_cuenta.strip()
+        self.identificacion_titular = (
+            self.identificacion_titular
+            .strip()
+            .upper()
+        )
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return (

@@ -77,7 +77,8 @@ class ProfesionalAdmin(admin.ModelAdmin):
         "nombre_completo",
         "especialidad",
         "telefono",
-        "correo",
+        "transferencia_habilitada",
+        "banco",
         "activo",
     )
 
@@ -87,11 +88,17 @@ class ProfesionalAdmin(admin.ModelAdmin):
         "telefono",
         "correo",
         "especialidad__nombre",
+        "banco",
+        "numero_cuenta",
+        "titular_cuenta",
+        "identificacion_titular",
     )
 
     list_filter = (
         "activo",
+        "transferencia_habilitada",
         "especialidad",
+        "banco",
     )
 
     ordering = (
@@ -100,6 +107,7 @@ class ProfesionalAdmin(admin.ModelAdmin):
     )
 
     list_editable = (
+        "transferencia_habilitada",
         "activo",
     )
 
@@ -126,6 +134,23 @@ class ProfesionalAdmin(admin.ModelAdmin):
                     "telefono",
                     "correo",
                 )
+            },
+        ),
+        (
+            "Datos para transferencias",
+            {
+                "description": (
+                    "Estos datos aparecerán únicamente "
+                    "cuando el usuario seleccione transferencia."
+                ),
+                "fields": (
+                    "transferencia_habilitada",
+                    "banco",
+                    "tipo_cuenta",
+                    "numero_cuenta",
+                    "titular_cuenta",
+                    "identificacion_titular",
+                ),
             },
         ),
         (

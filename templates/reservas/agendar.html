@@ -14,7 +14,12 @@
 
     <link
         rel="stylesheet"
-        href="{% static 'css/agendar.css' %}?v=10"
+        href="{% static 'css/agendar.css' %}?v=11"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/transferencia.css' %}?v=3"
     >
 </head>
 
@@ -23,10 +28,7 @@
 <header class="encabezado">
     <div class="encabezado-contenido">
 
-        <a
-            href="/"
-            class="marca"
-        >
+        <a href="/" class="marca">
             <span class="marca-icono">A</span>
 
             <div>
@@ -134,31 +136,19 @@
         </aside>
 
 
-        <!-- FORMULARIO CENTRAL -->
+        <!-- FORMULARIO -->
         <section
             class="contenedor-formulario"
             id="contenedor-agendamiento"
 
-            data-url-profesionales=
-            "{% url 'reservas:api_profesionales' %}"
+            data-url-profesionales="{% url 'reservas:api_profesionales' %}"
+            data-url-disponibilidad="{% url 'reservas:api_disponibilidad_mensual' %}"
+            data-url-horarios="{% url 'reservas:api_horarios' %}"
 
-            data-url-disponibilidad=
-            "{% url 'reservas:api_disponibilidad_mensual' %}"
-
-            data-url-horarios=
-            "{% url 'reservas:api_horarios' %}"
-
-            data-especialidad-inicial=
-            "{{ formulario.especialidad.value|default:'' }}"
-
-            data-profesional-inicial=
-            "{{ formulario.profesional.value|default:'' }}"
-
-            data-fecha-inicial=
-            "{{ formulario.fecha.value|default:'' }}"
-
-            data-hora-inicial=
-            "{{ formulario.hora.value|default:'' }}"
+            data-especialidad-inicial="{{ formulario.especialidad.value|default:'' }}"
+            data-profesional-inicial="{{ formulario.profesional.value|default:'' }}"
+            data-fecha-inicial="{{ formulario.fecha.value|default:'' }}"
+            data-hora-inicial="{{ formulario.hora.value|default:'' }}"
         >
 
             <div class="barra-progreso">
@@ -230,19 +220,15 @@
 
                 {% csrf_token %}
 
-
                 {% if formulario.non_field_errors %}
-
                     <div class="mensaje-error-general">
                         {% for error in formulario.non_field_errors %}
                             <p>{{ error }}</p>
                         {% endfor %}
                     </div>
-
                 {% endif %}
 
 
-                <!-- CAMPOS OCULTOS CONTROLADOS POR JAVASCRIPT -->
                 <div class="campos-control">
 
                     <div id="campo-especialidad-real">
@@ -275,6 +261,7 @@
                 >
 
                     <div class="cabecera-paso">
+
                         <span class="cabecera-paso-icono">
                             👤
                         </span>
@@ -293,12 +280,14 @@
                                 que recibirá la atención.
                             </p>
                         </div>
+
                     </div>
 
 
                     <div class="cuadricula-campos">
 
                         <div class="grupo-campo">
+
                             <label for="{{ formulario.nombres.id_for_label }}">
                                 Nombres completos
                                 <span>*</span>
@@ -311,10 +300,12 @@
                                     {{ error }}
                                 </small>
                             {% endfor %}
+
                         </div>
 
 
                         <div class="grupo-campo">
+
                             <label for="{{ formulario.apellidos.id_for_label }}">
                                 Apellidos completos
                                 <span>*</span>
@@ -327,10 +318,12 @@
                                     {{ error }}
                                 </small>
                             {% endfor %}
+
                         </div>
 
 
                         <div class="grupo-campo">
+
                             <label for="{{ formulario.nacionalidad.id_for_label }}">
                                 Nacionalidad
                                 <span>*</span>
@@ -343,12 +336,14 @@
                                     {{ error }}
                                 </small>
                             {% endfor %}
+
                         </div>
 
 
                         <div class="grupo-campo">
+
                             <label for="{{ formulario.tipo_documento.id_for_label }}">
-                                Tipo de documento
+                                Tipo de identificación
                                 <span>*</span>
                             </label>
 
@@ -359,12 +354,14 @@
                                     {{ error }}
                                 </small>
                             {% endfor %}
+
                         </div>
 
 
                         <div class="grupo-campo">
+
                             <label for="{{ formulario.cedula.id_for_label }}">
-                                Número de documento
+                                Número de identificación
                                 <span>*</span>
                             </label>
 
@@ -372,7 +369,7 @@
 
                             <small class="ayuda-campo">
                                 Se aceptan cédulas, DNI,
-                                pasaportes y otros documentos.
+                                pasaportes y otras identificaciones.
                             </small>
 
                             {% for error in formulario.cedula.errors %}
@@ -380,10 +377,12 @@
                                     {{ error }}
                                 </small>
                             {% endfor %}
+
                         </div>
 
 
                         <div class="grupo-campo">
+
                             <label for="{{ formulario.celular.id_for_label }}">
                                 Celular
                                 <span>*</span>
@@ -400,10 +399,12 @@
                                     {{ error }}
                                 </small>
                             {% endfor %}
+
                         </div>
 
 
                         <div class="grupo-campo campo-completo">
+
                             <label for="{{ formulario.correo.id_for_label }}">
                                 Correo electrónico
                             </label>
@@ -419,12 +420,14 @@
                                     {{ error }}
                                 </small>
                             {% endfor %}
+
                         </div>
 
                     </div>
 
 
                     <div class="acciones-paso acciones-derecha">
+
                         <button
                             type="button"
                             class="boton boton-principal"
@@ -433,6 +436,7 @@
                             Continuar
                             <span>→</span>
                         </button>
+
                     </div>
 
                 </section>
@@ -445,6 +449,7 @@
                 >
 
                     <div class="cabecera-paso">
+
                         <span class="cabecera-paso-icono">
                             ✦
                         </span>
@@ -463,6 +468,7 @@
                                 que necesitas.
                             </p>
                         </div>
+
                     </div>
 
 
@@ -485,6 +491,7 @@
                                 </span>
 
                                 <span class="tarjeta-texto">
+
                                     <strong>
                                         {{ especialidad.nombre }}
                                     </strong>
@@ -498,6 +505,7 @@
                                             Seleccionar especialidad
                                         </small>
                                     {% endif %}
+
                                 </span>
 
                                 <span class="marca-seleccion">
@@ -562,6 +570,7 @@
                 >
 
                     <div class="cabecera-paso">
+
                         <span class="cabecera-paso-icono">
                             👔
                         </span>
@@ -579,6 +588,7 @@
                                 Primero selecciona una especialidad.
                             </p>
                         </div>
+
                     </div>
 
 
@@ -649,6 +659,7 @@
                 >
 
                     <div class="cabecera-paso">
+
                         <span class="cabecera-paso-icono">
                             📅
                         </span>
@@ -666,6 +677,7 @@
                                 Escoge una fecha disponible.
                             </p>
                         </div>
+
                     </div>
 
 
@@ -762,6 +774,7 @@
                         <div class="panel-horarios">
 
                             <div class="panel-horarios-cabecera">
+
                                 <span>🕐</span>
 
                                 <div>
@@ -773,6 +786,7 @@
                                         Selecciona una fecha verde.
                                     </p>
                                 </div>
+
                             </div>
 
 
@@ -852,6 +866,7 @@
                 >
 
                     <div class="cabecera-paso">
+
                         <span class="cabecera-paso-icono">
                             💳
                         </span>
@@ -870,6 +885,7 @@
                                 cómo realizarás el anticipo.
                             </p>
                         </div>
+
                     </div>
 
 
@@ -881,6 +897,7 @@
 
                             <div class="fila-resumen">
                                 <span>Usuario</span>
+
                                 <strong id="resumen-usuario">
                                     Sin información
                                 </strong>
@@ -888,6 +905,7 @@
 
                             <div class="fila-resumen">
                                 <span>Especialidad</span>
+
                                 <strong id="resumen-especialidad">
                                     Sin seleccionar
                                 </strong>
@@ -895,6 +913,7 @@
 
                             <div class="fila-resumen">
                                 <span>Profesional</span>
+
                                 <strong id="resumen-profesional">
                                     Sin seleccionar
                                 </strong>
@@ -902,6 +921,7 @@
 
                             <div class="fila-resumen">
                                 <span>Fecha</span>
+
                                 <strong id="resumen-fecha">
                                     Sin seleccionar
                                 </strong>
@@ -909,6 +929,7 @@
 
                             <div class="fila-resumen">
                                 <span>Hora</span>
+
                                 <strong id="resumen-hora">
                                     Sin seleccionar
                                 </strong>
@@ -952,9 +973,7 @@
 
                         <div class="metodos-pago">
 
-                            <h3>
-                                Método de pago
-                            </h3>
+                            <h3>Método de pago</h3>
 
 
                             <div class="opciones-pago">
@@ -968,6 +987,7 @@
                                         <span class="tarjeta-pago-contenido">
 
                                             {% if opcion.data.value == "TRANSFERENCIA" %}
+
                                                 <span class="pago-icono">
                                                     🏦
                                                 </span>
@@ -978,8 +998,8 @@
                                                     </strong>
 
                                                     <small>
-                                                        Registra el número
-                                                        del comprobante.
+                                                        Realiza el anticipo
+                                                        a la cuenta indicada.
                                                     </small>
                                                 </span>
 
@@ -1022,6 +1042,122 @@
                             {% endfor %}
 
 
+                            <!-- DATOS DINÁMICOS DEL PROFESIONAL -->
+                            <section
+                                class="datos-transferencia oculto"
+                                id="datos-transferencia"
+                            >
+
+                                <div class="datos-transferencia-cabecera">
+
+                                    <span class="datos-transferencia-icono">
+                                        🏦
+                                    </span>
+
+                                    <div>
+                                        <strong>
+                                            Datos para la transferencia
+                                        </strong>
+
+                                        <p>
+                                            Transfiere solamente
+                                            el valor del anticipo.
+                                        </p>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="monto-transferencia">
+
+                                    <span>Valor a transferir</span>
+
+                                    <strong>
+                                        $<span id="monto-transferencia">
+                                            0.00
+                                        </span>
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="lista-datos-bancarios">
+
+                                    <div class="dato-bancario">
+                                        <span>Banco</span>
+
+                                        <strong id="dato-banco">
+                                            No disponible
+                                        </strong>
+                                    </div>
+
+
+                                    <div class="dato-bancario">
+                                        <span>Tipo de cuenta</span>
+
+                                        <strong id="dato-tipo-cuenta">
+                                            No disponible
+                                        </strong>
+                                    </div>
+
+
+                                    <div class="dato-bancario dato-con-copia">
+
+                                        <div>
+                                            <span>Número de cuenta</span>
+
+                                            <strong id="dato-numero-cuenta">
+                                                No disponible
+                                            </strong>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            class="boton-copiar"
+                                            data-copiar="dato-numero-cuenta"
+                                        >
+                                            Copiar
+                                        </button>
+
+                                    </div>
+
+
+                                    <div class="dato-bancario">
+                                        <span>Titular de la cuenta</span>
+
+                                        <strong id="dato-titular">
+                                            No disponible
+                                        </strong>
+                                    </div>
+
+
+                                    <div class="dato-bancario dato-con-copia">
+
+                                        <div>
+                                            <span>
+                                                Identificación del titular
+                                            </span>
+
+                                            <strong id="dato-identificacion">
+                                                No disponible
+                                            </strong>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            class="boton-copiar"
+                                            data-copiar="dato-identificacion"
+                                        >
+                                            Copiar
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </section>
+
+
                             <div
                                 class="grupo-campo campo-referencia oculto"
                                 id="contenedor-referencia"
@@ -1042,13 +1178,33 @@
                             </div>
 
 
-                            <div class="aviso-pago">
+                            <!-- SOLO PARA TRANSFERENCIA -->
+                            <div
+                                id="aviso-transferencia"
+                                class="aviso-metodo-pago aviso-transferencia oculto"
+                            >
+                                <span>🏦</span>
+
+                                <p>
+                                    Realiza la transferencia únicamente
+                                    por el valor del anticipo y registra
+                                    el número de comprobante o referencia
+                                    para validar tu pago.
+                                </p>
+                            </div>
+
+
+                            <!-- SOLO PARA TARJETA -->
+                            <div
+                                id="aviso-tarjeta"
+                                class="aviso-metodo-pago aviso-tarjeta oculto"
+                            >
                                 <span>🔒</span>
 
                                 <p>
                                     No guardamos números de tarjetas.
-                                    El pago real será conectado posteriormente
-                                    mediante una plataforma segura.
+                                    El pago con tarjeta de débito o crédito
+                                    será procesado mediante una plataforma segura.
                                 </p>
                             </div>
 
@@ -1058,6 +1214,7 @@
 
 
                     <label class="aceptacion">
+
                         <input
                             type="checkbox"
                             id="aceptar-condiciones"
@@ -1068,6 +1225,7 @@
                             son correctos y acepto las condiciones
                             de la reserva.
                         </span>
+
                     </label>
 
 
@@ -1221,17 +1379,19 @@
 
 
 <footer class="pie-pagina">
-
     <p>
         © {% now "Y" %} Agenda.
         Todos los derechos reservados.
     </p>
-
 </footer>
 
 
 <script
     src="{% static 'js/agendar.js' %}?v=10"
+></script>
+
+<script
+    src="{% static 'js/transferencia.js' %}?v=3"
 ></script>
 
 </body>

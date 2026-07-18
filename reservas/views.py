@@ -12,7 +12,10 @@ from django.shortcuts import (
 from django.utils import timezone
 from django.views.decorators.http import require_GET
 
-from core.models import AnuncioPropio, Opinion
+from core.models import (
+    AnuncioPropio,
+    Opinion,
+)
 from servicios.models import (
     BloqueoAgenda,
     Especialidad,
@@ -31,7 +34,10 @@ def intervalos_se_superponen(
     inicio_dos,
     fin_dos,
 ):
-    return inicio_uno < fin_dos and fin_uno > inicio_dos
+    return (
+        inicio_uno < fin_dos
+        and fin_uno > inicio_dos
+    )
 
 
 def obtener_servicio_principal(especialidad):
@@ -93,12 +99,47 @@ def obtener_citas_profesional(
         .exclude(
             estado=Cita.Estado.CANCELADA,
         )
-        .select_related("servicio")
+        .select_related(
+            "servicio",
+        )
         .order_by(
             "fecha",
             "hora",
         )
     )
+
+
+def obtener_datos_transferencia(profesional):
+    habilitada = (
+        profesional.datos_transferencia_completos
+    )
+
+    if not habilitada:
+        return {
+            "habilitada": False,
+            "banco": "",
+            "tipo_cuenta": "",
+            "numero_cuenta": "",
+            "titular": "",
+            "identificacion": "",
+        }
+
+    return {
+        "habilitada": True,
+        "banco": profesional.banco,
+        "tipo_cuenta": (
+            profesional.get_tipo_cuenta_display()
+        ),
+        "numero_cuenta": (
+            profesional.numero_cuenta
+        ),
+        "titular": (
+            profesional.titular_cuenta
+        ),
+        "identificacion": (
+            profesional.identificacion_titular
+        ),
+    }
 
 
 def obtener_horas_disponibles(
@@ -156,8 +197,11 @@ def obtener_horas_disponibles(
         if cita.fecha == fecha_seleccionada
     ]
 
-    ahora = timezone.localtime().replace(
-        tzinfo=None
+    ahora = (
+        timezone.localtime()
+        .replace(
+            tzinfo=None,
+        )
     )
 
     horas_disponibles = set()
@@ -176,8 +220,11 @@ def obtener_horas_disponibles(
         hora_actual = inicio_jornada
 
         while hora_actual < fin_jornada:
-            fin_turno = hora_actual + timedelta(
-                minutes=servicio.duracion_minutos
+            fin_turno = (
+                hora_actual
+                + timedelta(
+                    minutes=servicio.duracion_minutos,
+                )
             )
 
             if fin_turno > fin_jornada:
@@ -189,8 +236,9 @@ def obtener_horas_disponibles(
                 and hora_actual <= ahora
             ):
                 hora_actual += timedelta(
-                    minutes=horario.intervalo_minutos
+                    minutes=horario.intervalo_minutos,
                 )
+
                 continue
 
             bloqueada = False
@@ -224,8 +272,9 @@ def obtener_horas_disponibles(
 
             if bloqueada:
                 hora_actual += timedelta(
-                    minutes=horario.intervalo_minutos
+                    minutes=horario.intervalo_minutos,
                 )
+
                 continue
 
             ocupada = False
@@ -242,8 +291,11 @@ def obtener_horas_disponibles(
                     else 30
                 )
 
-                fin_cita = inicio_cita + timedelta(
-                    minutes=duracion_cita
+                fin_cita = (
+                    inicio_cita
+                    + timedelta(
+                        minutes=duracion_cita,
+                    )
                 )
 
                 if intervalos_se_superponen(
@@ -257,20 +309,24 @@ def obtener_horas_disponibles(
 
             if not ocupada:
                 horas_disponibles.add(
-                    hora_actual.strftime("%H:%M")
+                    hora_actual.strftime(
+                        "%H:%M"
+                    )
                 )
 
             hora_actual += timedelta(
-                minutes=horario.intervalo_minutos
+                minutes=horario.intervalo_minutos,
             )
 
-    return sorted(horas_disponibles)
+    return sorted(
+        horas_disponibles
+    )
 
 
 def agendar_cita(request):
     if request.method == "POST":
         formulario = AgendarCitaForm(
-            request.POST
+            request.POST,
         )
 
         if formulario.is_valid():
@@ -281,8 +337,9 @@ def agendar_cita(request):
                 formulario.add_error(
                     "hora",
                     (
-                        "Ese horario acaba de ser reservado "
-                        "por otra persona. Selecciona otra hora."
+                        "Ese horario acaba de ser "
+                        "reservado por otra persona. "
+                        "Selecciona otra hora."
                     ),
                 )
 
@@ -297,7 +354,7 @@ def agendar_cita(request):
 
     anuncios_activos = (
         AnuncioPropio.objects.filter(
-            activo=True
+            activo=True,
         )
         .order_by(
             "orden",
@@ -313,7 +370,7 @@ def agendar_cita(request):
 
     opiniones = (
         Opinion.objects.filter(
-            aprobada=True
+            aprobada=True,
         )
         .order_by(
             "-destacada",
@@ -323,34 +380,47 @@ def agendar_cita(request):
 
     contexto = {
         "formulario": formulario,
+
         "especialidades": (
             Especialidad.objects.filter(
-                activa=True
-            ).order_by("nombre")
+                activa=True,
+            ).order_by(
+                "nombre",
+            )
         ),
+
         "profesionales": (
             Profesional.objects.filter(
                 activo=True,
                 especialidad__activa=True,
             )
-            .select_related("especialidad")
+            .select_related(
+                "especialidad",
+            )
             .order_by(
                 "apellidos",
                 "nombres",
             )
         ),
+
         "servicios": (
             Servicio.objects.filter(
                 activo=True,
                 especialidad__activa=True,
             )
-            .select_related("especialidad")
+            .select_related(
+                "especialidad",
+            )
             .order_by(
                 "especialidad",
                 "id",
             )
         ),
-        "anuncios_propios": anuncios_vigentes[:3],
+
+        "anuncios_propios": (
+            anuncios_vigentes[:3]
+        ),
+
         "opiniones": opiniones,
     }
 
@@ -428,9 +498,22 @@ def profesionales_por_especialidad(request):
         datos.append(
             {
                 "id": profesional.id,
-                "nombre": profesional.nombre_completo,
+
+                "nombre": (
+                    profesional.nombre_completo
+                ),
+
                 "iniciales": iniciales,
-                "especialidad": especialidad.nombre,
+
+                "especialidad": (
+                    especialidad.nombre
+                ),
+
+                "transferencia": (
+                    obtener_datos_transferencia(
+                        profesional
+                    )
+                ),
             }
         )
 
@@ -440,6 +523,7 @@ def profesionales_por_especialidad(request):
                 "id": especialidad.id,
                 "nombre": especialidad.nombre,
             },
+
             "profesionales": datos,
         }
     )
@@ -451,8 +535,13 @@ def disponibilidad_mensual(request):
         "profesional_id"
     )
 
-    anio_texto = request.GET.get("anio")
-    mes_texto = request.GET.get("mes")
+    anio_texto = request.GET.get(
+        "anio"
+    )
+
+    mes_texto = request.GET.get(
+        "mes"
+    )
 
     if not profesional_id:
         return JsonResponse(
@@ -501,7 +590,7 @@ def disponibilidad_mensual(request):
 
     profesional = get_object_or_404(
         Profesional.objects.select_related(
-            "especialidad"
+            "especialidad",
         ),
         id=profesional_id,
         activo=True,
@@ -596,8 +685,12 @@ def disponibilidad_mensual(request):
 
         dias.append(
             {
-                "fecha": fecha_actual.isoformat(),
+                "fecha": (
+                    fecha_actual.isoformat()
+                ),
+
                 "dia": numero_dia,
+
                 "estado": estado,
             }
         )
@@ -606,14 +699,39 @@ def disponibilidad_mensual(request):
         {
             "profesional": {
                 "id": profesional.id,
-                "nombre": profesional.nombre_completo,
+
+                "nombre": (
+                    profesional.nombre_completo
+                ),
             },
+
             "mes": mes,
+
             "anio": anio,
+
             "primer_dia_semana": (
                 fecha_inicio.weekday()
             ),
+
             "dias": dias,
+
+            "leyenda": {
+                "disponible": (
+                    "Fecha disponible"
+                ),
+
+                "separada": (
+                    "Fecha separada o sin cupos"
+                ),
+
+                "sin_atencion": (
+                    "El profesional no atiende"
+                ),
+
+                "pasada": (
+                    "Fecha anterior"
+                ),
+            },
         }
     )
 
@@ -624,13 +742,16 @@ def horarios_disponibles(request):
         "profesional_id"
     )
 
-    fecha_texto = request.GET.get("fecha")
+    fecha_texto = request.GET.get(
+        "fecha"
+    )
 
     if not profesional_id or not fecha_texto:
         return JsonResponse(
             {
                 "error": (
-                    "Debes indicar el profesional y la fecha."
+                    "Debes indicar el profesional "
+                    "y la fecha."
                 )
             },
             status=400,
@@ -638,24 +759,31 @@ def horarios_disponibles(request):
 
     try:
         fecha_seleccionada = (
-            date.fromisoformat(fecha_texto)
+            date.fromisoformat(
+                fecha_texto
+            )
         )
 
     except ValueError:
         return JsonResponse(
             {
                 "error": (
-                    "La fecha seleccionada no es válida."
+                    "La fecha seleccionada "
+                    "no es válida."
                 )
             },
             status=400,
         )
 
-    if fecha_seleccionada < timezone.localdate():
+    if (
+        fecha_seleccionada
+        < timezone.localdate()
+    ):
         return JsonResponse(
             {
                 "error": (
-                    "La fecha no puede estar en el pasado."
+                    "La fecha no puede estar "
+                    "en el pasado."
                 )
             },
             status=400,
@@ -663,7 +791,7 @@ def horarios_disponibles(request):
 
     profesional = get_object_or_404(
         Profesional.objects.select_related(
-            "especialidad"
+            "especialidad",
         ),
         id=profesional_id,
         activo=True,
@@ -693,43 +821,64 @@ def horarios_disponibles(request):
     precio = servicio.precio
 
     anticipo = (
-        precio * Decimal("0.20")
+        precio
+        * Decimal("0.20")
     ).quantize(
         Decimal("0.01")
     )
 
     saldo = (
-        precio - anticipo
+        precio
+        - anticipo
     ).quantize(
         Decimal("0.01")
     )
 
     return JsonResponse(
         {
-            "fecha": fecha_seleccionada.isoformat(),
+            "fecha": (
+                fecha_seleccionada.isoformat()
+            ),
+
             "profesional": {
                 "id": profesional.id,
-                "nombre": profesional.nombre_completo,
+
+                "nombre": (
+                    profesional.nombre_completo
+                ),
+
+                "transferencia": (
+                    obtener_datos_transferencia(
+                        profesional
+                    )
+                ),
             },
+
             "servicio": {
                 "id": servicio.id,
+
                 "nombre": servicio.nombre,
+
                 "duracion_minutos": (
                     servicio.duracion_minutos
                 ),
+
                 "precio": format(
                     precio,
                     ".2f",
                 ),
+
                 "anticipo": format(
                     anticipo,
                     ".2f",
                 ),
+
                 "saldo": format(
                     saldo,
                     ".2f",
                 ),
             },
+
             "horas": horas,
         }
     )

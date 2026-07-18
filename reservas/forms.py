@@ -2,7 +2,6 @@ import re
 from datetime import datetime, timedelta
 
 from django import forms
-from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 
@@ -28,7 +27,6 @@ def normalizar_documento(documento):
 
 def normalizar_celular(celular):
     celular = celular.strip()
-
     tiene_prefijo = celular.startswith("+")
 
     numeros = re.sub(
@@ -144,17 +142,18 @@ class AgendarCitaForm(forms.Form):
     )
 
     tipo_documento = forms.ChoiceField(
-        label="Tipo de documento",
+        label="Tipo de identificación",
         choices=Paciente.TipoDocumento.choices,
     )
 
     cedula = forms.CharField(
-        label="Número de documento",
+        label="Número de identificación",
         max_length=30,
         widget=forms.TextInput(
             attrs={
                 "placeholder": (
-                    "Cédula, DNI o pasaporte"
+                    "Cédula, DNI, pasaporte "
+                    "u otra identificación"
                 ),
                 "autocomplete": "off",
             }
@@ -166,9 +165,7 @@ class AgendarCitaForm(forms.Form):
         max_length=25,
         widget=forms.TextInput(
             attrs={
-                "placeholder": (
-                    "Ejemplo: +593991234567"
-                ),
+                "placeholder": "Ejemplo: +593991234567",
                 "inputmode": "tel",
                 "autocomplete": "tel",
             }
@@ -226,7 +223,7 @@ class AgendarCitaForm(forms.Form):
     )
 
     referencia_pago = forms.CharField(
-        label="Referencia de transferencia",
+        label="Número de comprobante o referencia",
         required=False,
         max_length=120,
         widget=forms.TextInput(
@@ -309,27 +306,27 @@ class AgendarCitaForm(forms.Form):
         return nacionalidad.title()
 
     def clean_cedula(self):
-        documento = normalizar_documento(
+        identificacion = normalizar_documento(
             self.cleaned_data["cedula"]
         )
 
-        if len(documento) < 4:
+        if len(identificacion) < 4:
             raise forms.ValidationError(
                 (
-                    "El número de documento debe "
+                    "El número de identificación debe "
                     "tener al menos 4 caracteres."
                 )
             )
 
-        if len(documento) > 30:
+        if len(identificacion) > 30:
             raise forms.ValidationError(
                 (
-                    "El número de documento no puede "
+                    "El número de identificación no puede "
                     "superar los 30 caracteres."
                 )
             )
 
-        return documento
+        return identificacion
 
     def clean_celular(self):
         celular = normalizar_celular(
@@ -391,7 +388,7 @@ class AgendarCitaForm(forms.Form):
             "tipo_documento"
         )
 
-        documento = datos.get(
+        identificacion = datos.get(
             "cedula"
         )
 
@@ -424,19 +421,27 @@ class AgendarCitaForm(forms.Form):
             "",
         ).strip()
 
-        if (
+        es_ecuatoriano = (
             nacionalidad
-            and tipo_documento
-            == Paciente.TipoDocumento.CEDULA
             and nacionalidad.lower()
             in {
                 "ecuador",
                 "ecuatoriana",
                 "ecuatoriano",
             }
-            and documento
+        )
+
+        es_cedula = (
+            tipo_documento
+            == Paciente.TipoDocumento.CEDULA
+        )
+
+        if (
+            es_ecuatoriano
+            and es_cedula
+            and identificacion
             and not validar_cedula_ecuatoriana(
-                documento
+                identificacion
             )
         ):
             self.add_error(
@@ -473,6 +478,7 @@ class AgendarCitaForm(forms.Form):
 
             if servicio:
                 datos["servicio"] = servicio
+
             else:
                 self.add_error(
                     "especialidad",
@@ -534,15 +540,34 @@ class AgendarCitaForm(forms.Form):
         if (
             metodo_pago
             == Cita.MetodoPago.TRANSFERENCIA
-            and not referencia_pago
         ):
-            self.add_error(
-                "referencia_pago",
-                (
-                    "Ingresa la referencia "
-                    "de la transferencia."
-                ),
-            )
+            if not profesional:
+                self.add_error(
+                    "profesional",
+                    (
+                        "Selecciona un profesional antes "
+                        "de realizar la transferencia."
+                    ),
+                )
+
+            elif not profesional.datos_transferencia_completos:
+                self.add_error(
+                    "metodo_pago",
+                    (
+                        "El profesional seleccionado no "
+                        "tiene habilitado el pago mediante "
+                        "transferencia. Selecciona tarjeta."
+                    ),
+                )
+
+            if not referencia_pago:
+                self.add_error(
+                    "referencia_pago",
+                    (
+                        "Ingresa el número del comprobante "
+                        "o referencia de la transferencia."
+                    ),
+                )
 
         datos["referencia_pago"] = (
             referencia_pago
