@@ -14,12 +14,12 @@
 
     <link
         rel="stylesheet"
-        href="{% static 'css/panel.css' %}?v=2"
+        href="{% static 'css/panel.css' %}?v=3"
     >
 
     <link
         rel="stylesheet"
-        href="{% static 'css/reprogramar_cita.css' %}?v=1"
+        href="{% static 'css/reprogramar_cita.css' %}?v=2"
     >
 </head>
 
@@ -61,8 +61,14 @@
     data-url-disponibilidad="{% url 'core:disponibilidad_reprogramacion' cita.codigo %}"
     data-url-horarios="{% url 'core:horarios_reprogramacion' cita.codigo %}"
 
+    data-profesional-actual="{{ profesional_actual_id }}"
+    data-profesional-seleccionado="{{ profesional_seleccionado_id }}"
+
     data-fecha-actual="{{ fecha_actual }}"
     data-hora-actual="{{ hora_actual }}"
+
+    data-fecha-seleccionada="{{ fecha_seleccionada }}"
+    data-hora-seleccionada="{{ hora_seleccionada }}"
 >
 
     {% if messages %}
@@ -94,8 +100,81 @@
             <h1>Reprogramar cita</h1>
 
             <p>
-                Selecciona una nueva fecha y un horario disponible
-                para cambiar la cita.
+                Puedes cambiar el profesional, la fecha y el horario
+                sin crear una cita nueva.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <section class="panel-seccion selector-profesional">
+
+        <div class="cabecera-seccion">
+
+            <div>
+                <h2>Selecciona el profesional</h2>
+
+                <p>
+                    Solo aparecen profesionales activos
+                    de la especialidad
+                    {{ cita.especialidad.nombre }}.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="campo-profesional">
+
+            <label for="nuevo-profesional">
+                Profesional que atenderá la cita
+            </label>
+
+            <select
+                name="profesional"
+                id="nuevo-profesional"
+                form="formulario-reprogramacion"
+                required
+            >
+
+                {% for profesional in profesionales %}
+
+                    <option
+                        value="{{ profesional.pk }}"
+
+                        data-nombre="
+                            {{ profesional.nombres }}
+                            {{ profesional.apellidos }}
+                        "
+
+                        {% if profesional.pk == profesional_seleccionado_id %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ profesional.nombres }}
+                        {{ profesional.apellidos }}
+
+                        {% if profesional.pk == profesional_actual_id %}
+                            — Profesional actual
+                        {% endif %}
+                    </option>
+
+                {% empty %}
+
+                    <option value="">
+                        No hay profesionales disponibles
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <p class="ayuda-campo">
+                Al cambiar de profesional, el calendario y los horarios
+                se actualizarán automáticamente.
             </p>
 
         </div>
@@ -113,7 +192,8 @@
                     <h2>Nueva fecha</h2>
 
                     <p>
-                        Los días verdes tienen horarios disponibles.
+                        Los días verdes tienen horarios disponibles
+                        para el profesional seleccionado.
                     </p>
                 </div>
 
@@ -166,11 +246,13 @@
             >
 
                 <div class="estado-cargando calendario-vacio">
+
                     <span class="cargador"></span>
 
                     <p>
                         Cargando disponibilidad...
                     </p>
+
                 </div>
 
             </div>
@@ -222,11 +304,13 @@
                 class="estado-cargando oculto"
                 id="cargando-horarios"
             >
+
                 <span class="cargador"></span>
 
                 <p>
                     Cargando horarios...
                 </p>
+
             </div>
 
 
@@ -236,6 +320,7 @@
             >
 
                 <div class="estado-vacio">
+
                     <span>🕐</span>
 
                     <strong>
@@ -245,6 +330,7 @@
                     <p>
                         Los horarios disponibles aparecerán aquí.
                     </p>
+
                 </div>
 
             </div>
@@ -262,7 +348,7 @@
                 <h2>Resumen del cambio</h2>
 
                 <p>
-                    Revisa la cita actual y la nueva programación.
+                    Revisa la programación actual y la nueva.
                 </p>
             </div>
 
@@ -277,36 +363,44 @@
                     Cita actual
                 </span>
 
+
                 <div class="dato-resumen">
+
                     <span>Usuario</span>
 
                     <strong>
                         {{ cita.paciente.nombres }}
                         {{ cita.paciente.apellidos }}
                     </strong>
+
                 </div>
 
 
                 <div class="dato-resumen">
+
                     <span>Servicio</span>
 
                     <strong>
                         {{ cita.servicio.nombre }}
                     </strong>
+
                 </div>
 
 
                 <div class="dato-resumen">
-                    <span>Profesional</span>
+
+                    <span>Profesional actual</span>
 
                     <strong>
                         {{ cita.profesional.nombres }}
                         {{ cita.profesional.apellidos }}
                     </strong>
+
                 </div>
 
 
                 <div class="dato-resumen">
+
                     <span>Fecha y hora actuales</span>
 
                     <strong>
@@ -314,6 +408,7 @@
                         ·
                         {{ cita.hora|time:"H:i" }}
                     </strong>
+
                 </div>
 
             </div>
@@ -324,6 +419,18 @@
                 <span class="titulo-bloque-resumen">
                     Nueva programación
                 </span>
+
+
+                <div class="dato-resumen">
+
+                    <span>Nuevo profesional</span>
+
+                    <strong id="resumen-nuevo-profesional">
+                        Sin seleccionar
+                    </strong>
+
+                </div>
+
 
                 <div class="dato-resumen">
 
@@ -352,8 +459,8 @@
                     <span>ℹ️</span>
 
                     <p>
-                        El usuario, servicio, profesional y datos
-                        del pago se mantendrán sin cambios.
+                        El usuario, servicio y datos del pago
+                        se mantendrán sin cambios.
                     </p>
 
                 </div>
@@ -370,18 +477,20 @@
 
             {% csrf_token %}
 
+
             <input
                 type="hidden"
                 name="fecha"
                 id="nueva-fecha"
-                value=""
+                value="{{ fecha_seleccionada }}"
             >
+
 
             <input
                 type="hidden"
                 name="hora"
                 id="nueva-hora"
-                value=""
+                value="{{ hora_seleccionada }}"
             >
 
 
@@ -399,6 +508,7 @@
                 >
                     Cancelar
                 </a>
+
 
                 <button
                     type="submit"
@@ -418,7 +528,7 @@
 
 
 <script
-    src="{% static 'js/reprogramar_cita.js' %}?v=1"
+    src="{% static 'js/reprogramar_cita.js' %}?v=2"
 ></script>
 
 </body>

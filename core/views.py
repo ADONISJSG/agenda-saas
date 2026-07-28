@@ -3,18 +3,13 @@ from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from django.contrib import messages
-from django.contrib.admin.views.decorators import (
-    staff_member_required,
-)
+from django.contrib.admin.views.decorators import staff_member_required
+from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.db import IntegrityError, transaction
 from django.db.models import Q, Sum
 from django.http import JsonResponse
-from django.shortcuts import (
-    get_object_or_404,
-    redirect,
-    render,
-)
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.views.decorators.http import require_GET
@@ -23,15 +18,13 @@ from reservas.models import Cita
 from servicios.models import (
     BloqueoAgenda,
     HorarioProfesional,
+    Profesional,
 )
 from usuarios.models import Paciente
 
 
 def inicio(request):
-    return render(
-        request,
-        "core/inicio.html",
-    )
+    return render(request, "core/inicio.html")
 
 
 def intervalos_se_superponen(
@@ -40,10 +33,7 @@ def intervalos_se_superponen(
     inicio_dos,
     fin_dos,
 ):
-    return (
-        inicio_uno < fin_dos
-        and fin_uno > inicio_dos
-    )
+    return inicio_uno < fin_dos and fin_uno > inicio_dos
 
 
 def parsear_hora(hora_texto):
@@ -65,13 +55,43 @@ def parsear_hora(hora_texto):
     return None
 
 
+def obtener_profesional_reprogramacion(
+    cita,
+    profesional_id,
+):
+    if not profesional_id:
+        return cita.profesional
+
+    try:
+        profesional_id = int(profesional_id)
+
+    except (TypeError, ValueError):
+        return None
+
+    return Profesional.objects.filter(
+        pk=profesional_id,
+        especialidad=cita.especialidad,
+        activo=True,
+    ).first()
+
+
 def obtener_horas_reprogramacion(
     cita,
     fecha_seleccionada,
+    profesional=None,
+    servicio=None,
 ):
+    profesional_seleccionado = (
+        profesional or cita.profesional
+    )
+
+    servicio_seleccionado = (
+        servicio or cita.servicio
+    )
+
     horarios = list(
         HorarioProfesional.objects.filter(
-            profesional=cita.profesional,
+            profesional=profesional_seleccionado,
             dia_semana=fecha_seleccionada.weekday(),
             activo=True,
         ).order_by(
@@ -84,7 +104,7 @@ def obtener_horas_reprogramacion(
 
     bloqueos = list(
         BloqueoAgenda.objects.filter(
-            profesional=cita.profesional,
+            profesional=profesional_seleccionado,
             fecha=fecha_seleccionada,
             activo=True,
         ).order_by(
@@ -100,7 +120,7 @@ def obtener_horas_reprogramacion(
 
     citas_existentes = list(
         Cita.objects.filter(
-            profesional=cita.profesional,
+            profesional=profesional_seleccionado,
             fecha=fecha_seleccionada,
         )
         .exclude(
@@ -117,11 +137,8 @@ def obtener_horas_reprogramacion(
         )
     )
 
-    ahora = (
-        timezone.localtime()
-        .replace(
-            tzinfo=None,
-        )
+    ahora = timezone.localtime().replace(
+        tzinfo=None,
     )
 
     horas_disponibles = set()
@@ -140,13 +157,11 @@ def obtener_horas_reprogramacion(
         hora_actual = inicio_jornada
 
         while hora_actual < fin_jornada:
-            fin_turno = (
-                hora_actual
-                + timedelta(
-                    minutes=(
-                        cita.servicio.duracion_minutos
-                    ),
-                )
+            fin_turno = hora_actual + timedelta(
+                minutes=(
+                    servicio_seleccionado
+                    .duracion_minutos
+                ),
             )
 
             if fin_turno > fin_jornada:
@@ -212,16 +227,15 @@ def obtener_horas_reprogramacion(
                 )
 
                 duracion_existente = (
-                    cita_existente.servicio.duracion_minutos
+                    cita_existente
+                    .servicio
+                    .duracion_minutos
                     if cita_existente.servicio_id
                     else 30
                 )
 
-                fin_cita = (
-                    inicio_cita
-                    + timedelta(
-                        minutes=duracion_existente,
-                    )
+                fin_cita = inicio_cita + timedelta(
+                    minutes=duracion_existente,
                 )
 
                 if intervalos_se_superponen(
@@ -546,9 +560,7 @@ def actualizar_cita(
 
         messages.warning(
             request,
-            (
-                "El pago fue marcado como rechazado."
-            ),
+            "El pago fue marcado como rechazado.",
         )
 
     elif accion == "confirmar_cita":
@@ -665,26 +677,72 @@ def reprogramar_cita(
             codigo=cita.codigo,
         )
 
-    if request.method == "POST":
-        fecha_texto = request.POST.get(
+    profesionales = (
+        Profesional.objects.filter(
+            especialidad=cita.especialidad,
+            activo=True,
+        )
+        .order_by(
+            "nombres",
+            "apellidos",
+        )
+    )
+
+    profesional_solicitado_id = (
+        request.POST.get(
+            "profesional",
+            "",
+        ).strip()
+        if request.method == "POST"
+        else str(cita.profesional_id)
+    )
+
+    profesional_seleccionado = (
+        obtener_profesional_reprogramacion(
+            cita=cita,
+            profesional_id=(
+                profesional_solicitado_id
+            ),
+        )
+    )
+
+    fecha_seleccionada_texto = (
+        request.POST.get(
             "fecha",
             "",
         ).strip()
+        if request.method == "POST"
+        else cita.fecha.isoformat()
+    )
 
-        hora_texto = request.POST.get(
+    hora_seleccionada_texto = (
+        request.POST.get(
             "hora",
             "",
         ).strip()
+        if request.method == "POST"
+        else cita.hora.strftime("%H:%M")
+    )
 
+    if request.method == "POST":
         fecha_nueva = parse_date(
-            fecha_texto
+            fecha_seleccionada_texto
         )
 
         hora_nueva = parsear_hora(
-            hora_texto
+            hora_seleccionada_texto
         )
 
-        if not fecha_nueva:
+        if not profesional_seleccionado:
+            messages.error(
+                request,
+                (
+                    "Selecciona un profesional "
+                    "válido para la especialidad."
+                ),
+            )
+
+        elif not fecha_nueva:
             messages.error(
                 request,
                 (
@@ -712,14 +770,16 @@ def reprogramar_cita(
             )
 
         elif (
-            fecha_nueva == cita.fecha
+            profesional_seleccionado.pk
+            == cita.profesional_id
+            and fecha_nueva == cita.fecha
             and hora_nueva == cita.hora
         ):
             messages.info(
                 request,
                 (
-                    "La cita mantiene la misma "
-                    "fecha y hora."
+                    "La cita mantiene el mismo "
+                    "profesional, fecha y hora."
                 ),
             )
 
@@ -732,16 +792,15 @@ def reprogramar_cita(
             horas_disponibles = (
                 obtener_horas_reprogramacion(
                     cita=cita,
-                    fecha_seleccionada=(
-                        fecha_nueva
+                    fecha_seleccionada=fecha_nueva,
+                    profesional=(
+                        profesional_seleccionado
                     ),
                 )
             )
 
             hora_normalizada = (
-                hora_nueva.strftime(
-                    "%H:%M"
-                )
+                hora_nueva.strftime("%H:%M")
             )
 
             if (
@@ -752,17 +811,31 @@ def reprogramar_cita(
                     request,
                     (
                         "El horario seleccionado ya no "
-                        "se encuentra disponible."
+                        "se encuentra disponible para "
+                        "ese profesional."
                     ),
                 )
 
             else:
+                cita.profesional = (
+                    profesional_seleccionado
+                )
+
                 cita.fecha = fecha_nueva
                 cita.hora = hora_nueva
 
                 try:
                     cita.full_clean()
                     cita.save()
+
+                except ValidationError:
+                    messages.error(
+                        request,
+                        (
+                            "No se pudo reprogramar la "
+                            "cita con los datos seleccionados."
+                        ),
+                    )
 
                 except IntegrityError:
                     messages.error(
@@ -787,17 +860,41 @@ def reprogramar_cita(
                         codigo=cita.codigo,
                     )
 
+    if not profesional_seleccionado:
+        profesional_seleccionado = (
+            cita.profesional
+        )
+
+        profesional_solicitado_id = str(
+            cita.profesional_id
+        )
+
     contexto = {
         "cita": cita,
+        "profesionales": profesionales,
 
         "fecha_actual": (
             cita.fecha.isoformat()
         ),
 
         "hora_actual": (
-            cita.hora.strftime(
-                "%H:%M"
-            )
+            cita.hora.strftime("%H:%M")
+        ),
+
+        "profesional_actual_id": (
+            cita.profesional_id
+        ),
+
+        "fecha_seleccionada": (
+            fecha_seleccionada_texto
+        ),
+
+        "hora_seleccionada": (
+            hora_seleccionada_texto
+        ),
+
+        "profesional_seleccionado_id": (
+            profesional_seleccionado.pk
         ),
     }
 
@@ -818,11 +915,35 @@ def disponibilidad_reprogramacion(
 ):
     cita = get_object_or_404(
         Cita.objects.select_related(
+            "especialidad",
             "profesional",
             "servicio",
         ),
         codigo=codigo,
     )
+
+    profesional_id = request.GET.get(
+        "profesional_id",
+        "",
+    )
+
+    profesional = (
+        obtener_profesional_reprogramacion(
+            cita=cita,
+            profesional_id=profesional_id,
+        )
+    )
+
+    if not profesional:
+        return JsonResponse(
+            {
+                "error": (
+                    "El profesional seleccionado "
+                    "no es válido."
+                )
+            },
+            status=400,
+        )
 
     anio_texto = request.GET.get(
         "anio",
@@ -896,7 +1017,7 @@ def disponibilidad_reprogramacion(
 
         atiende_ese_dia = (
             HorarioProfesional.objects.filter(
-                profesional=cita.profesional,
+                profesional=profesional,
                 dia_semana=(
                     fecha_actual.weekday()
                 ),
@@ -916,10 +1037,12 @@ def disponibilidad_reprogramacion(
                 fecha_seleccionada=(
                     fecha_actual
                 ),
+                profesional=profesional,
             )
 
             if horas:
                 estado = "disponible"
+
             else:
                 estado = "separada"
 
@@ -935,6 +1058,8 @@ def disponibilidad_reprogramacion(
 
                 "es_fecha_actual": (
                     fecha_actual == cita.fecha
+                    and profesional.pk
+                    == cita.profesional_id
                 ),
             }
         )
@@ -946,6 +1071,10 @@ def disponibilidad_reprogramacion(
 
             "primer_dia_semana": (
                 fecha_inicio.weekday()
+            ),
+
+            "profesional_id": (
+                profesional.pk
             ),
 
             "dias": dias,
@@ -963,11 +1092,35 @@ def horarios_reprogramacion(
 ):
     cita = get_object_or_404(
         Cita.objects.select_related(
+            "especialidad",
             "profesional",
             "servicio",
         ),
         codigo=codigo,
     )
+
+    profesional_id = request.GET.get(
+        "profesional_id",
+        "",
+    )
+
+    profesional = (
+        obtener_profesional_reprogramacion(
+            cita=cita,
+            profesional_id=profesional_id,
+        )
+    )
+
+    if not profesional:
+        return JsonResponse(
+            {
+                "error": (
+                    "El profesional seleccionado "
+                    "no es válido."
+                )
+            },
+            status=400,
+        )
 
     fecha_texto = request.GET.get(
         "fecha",
@@ -1008,7 +1161,18 @@ def horarios_reprogramacion(
         fecha_seleccionada=(
             fecha_seleccionada
         ),
+        profesional=profesional,
     )
+
+    hora_actual = ""
+
+    if (
+        profesional.pk == cita.profesional_id
+        and fecha_seleccionada == cita.fecha
+    ):
+        hora_actual = cita.hora.strftime(
+            "%H:%M"
+        )
 
     return JsonResponse(
         {
@@ -1016,15 +1180,11 @@ def horarios_reprogramacion(
                 fecha_seleccionada.isoformat()
             ),
 
-            "horas": horas,
-
-            "hora_actual": (
-                cita.hora.strftime(
-                    "%H:%M"
-                )
-                if fecha_seleccionada
-                == cita.fecha
-                else ""
+            "profesional_id": (
+                profesional.pk
             ),
+
+            "horas": horas,
+            "hora_actual": hora_actual,
         }
     )

@@ -7,6 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
+    const selectorProfesional = document.getElementById(
+        "nuevo-profesional"
+    );
+
     const calendarioDias = document.getElementById(
         "calendario-dias"
     );
@@ -43,6 +47,10 @@ document.addEventListener("DOMContentLoaded", () => {
         "nueva-hora"
     );
 
+    const resumenNuevoProfesional = document.getElementById(
+        "resumen-nuevo-profesional"
+    );
+
     const resumenNuevaFecha = document.getElementById(
         "resumen-nueva-fecha"
     );
@@ -69,11 +77,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const urlHorarios =
         contenedor.dataset.urlHorarios;
 
+    const profesionalActual =
+        contenedor.dataset.profesionalActual || "";
+
+    const profesionalSeleccionadoInicial =
+        contenedor.dataset.profesionalSeleccionado
+        || profesionalActual;
+
     const fechaActual =
         contenedor.dataset.fechaActual || "";
 
     const horaActual =
         contenedor.dataset.horaActual || "";
+
+    const fechaSeleccionadaInicial =
+        contenedor.dataset.fechaSeleccionada
+        || fechaActual;
+
+    const horaSeleccionadaInicial =
+        contenedor.dataset.horaSeleccionada
+        || horaActual;
 
     const hoy = new Date();
 
@@ -84,6 +107,9 @@ document.addEventListener("DOMContentLoaded", () => {
         hoy.getMonth(),
         1
     );
+
+    let solicitudCalendario = null;
+    let solicitudHorarios = null;
 
 
     function escaparTexto(texto) {
@@ -142,7 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return "Sin seleccionar";
         }
 
-        return new Intl.DateTimeFormat(
+        const texto = new Intl.DateTimeFormat(
             "es-EC",
             {
                 weekday: "long",
@@ -151,6 +177,44 @@ document.addEventListener("DOMContentLoaded", () => {
                 year: "numeric",
             }
         ).format(fecha);
+
+        return (
+            texto.charAt(0).toUpperCase()
+            + texto.slice(1)
+        );
+    }
+
+
+    function obtenerProfesionalSeleccionado() {
+        if (!selectorProfesional) {
+            return "";
+        }
+
+        return selectorProfesional.value;
+    }
+
+
+    function obtenerNombreProfesional() {
+        if (
+            !selectorProfesional
+            || !selectorProfesional.value
+        ) {
+            return "Sin seleccionar";
+        }
+
+        const opcion =
+            selectorProfesional.options[
+                selectorProfesional.selectedIndex
+            ];
+
+        if (!opcion) {
+            return "Sin seleccionar";
+        }
+
+        return opcion.textContent
+            .replace("— Profesional actual", "")
+            .replace(/\s+/g, " ")
+            .trim();
     }
 
 
@@ -173,6 +237,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     function actualizarResumen() {
+        resumenNuevoProfesional.textContent =
+            obtenerNombreProfesional();
+
         resumenNuevaFecha.textContent =
             campoFecha.value
             ? formatearFecha(campoFecha.value)
@@ -197,12 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    async function cargarCalendario() {
-        tituloMes.textContent =
-            formatearMes(mesVisible);
-
-        actualizarBotonMesAnterior();
-
+    function mostrarCalendarioCargando() {
         calendarioDias.innerHTML = `
             <div class="estado-cargando calendario-vacio">
                 <span class="cargador"></span>
@@ -212,6 +274,77 @@ document.addEventListener("DOMContentLoaded", () => {
                 </p>
             </div>
         `;
+    }
+
+
+    function mostrarHorariosVacios() {
+        listaHorarios.innerHTML = `
+            <div class="estado-vacio">
+                <span>🕐</span>
+
+                <strong>
+                    Sin fecha seleccionada
+                </strong>
+
+                <p>
+                    Los horarios disponibles aparecerán aquí.
+                </p>
+            </div>
+        `;
+    }
+
+
+    function limpiarFechaYHora() {
+        campoFecha.value = "";
+        campoHora.value = "";
+
+        fechaSeleccionadaTexto.textContent =
+            "Selecciona una fecha verde.";
+
+        mostrarHorariosVacios();
+
+        actualizarResumen();
+    }
+
+
+    async function cargarCalendario() {
+        ocultarMensaje();
+
+        tituloMes.textContent =
+            formatearMes(mesVisible);
+
+        actualizarBotonMesAnterior();
+
+        const profesionalId =
+            obtenerProfesionalSeleccionado();
+
+        if (!profesionalId) {
+            calendarioDias.innerHTML = `
+                <div class="estado-vacio calendario-vacio">
+                    <span>👤</span>
+
+                    <strong>
+                        Selecciona un profesional
+                    </strong>
+
+                    <p>
+                        El calendario aparecerá después
+                        de seleccionar un profesional.
+                    </p>
+                </div>
+            `;
+
+            return;
+        }
+
+        if (solicitudCalendario) {
+            solicitudCalendario.abort();
+        }
+
+        solicitudCalendario =
+            new AbortController();
+
+        mostrarCalendarioCargando();
 
         try {
             const parametros = new URLSearchParams({
@@ -222,10 +355,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 mes: String(
                     mesVisible.getMonth() + 1
                 ),
+
+                profesional_id: profesionalId,
             });
 
             const respuesta = await fetch(
-                `${urlDisponibilidad}?${parametros}`
+                `${urlDisponibilidad}?${parametros}`,
+                {
+                    signal:
+                        solicitudCalendario.signal,
+                }
             );
 
             const datos = await respuesta.json();
@@ -240,6 +379,10 @@ document.addEventListener("DOMContentLoaded", () => {
             renderizarCalendario(datos);
 
         } catch (error) {
+            if (error.name === "AbortError") {
+                return;
+            }
+
             calendarioDias.innerHTML = `
                 <div class="estado-vacio calendario-vacio">
                     <span>⚠️</span>
@@ -253,6 +396,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     </p>
                 </div>
             `;
+
+        } finally {
+            solicitudCalendario = null;
         }
     }
 
@@ -265,9 +411,8 @@ document.addEventListener("DOMContentLoaded", () => {
             indice < datos.primer_dia_semana;
             indice += 1
         ) {
-            const espacio = document.createElement(
-                "span"
-            );
+            const espacio =
+                document.createElement("span");
 
             espacio.className = "dia-vacio";
 
@@ -277,9 +422,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         datos.dias.forEach((dia) => {
-            const boton = document.createElement(
-                "button"
-            );
+            const boton =
+                document.createElement("button");
 
             boton.type = "button";
 
@@ -290,7 +434,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 dia.dia
             );
 
-            boton.dataset.fecha = dia.fecha;
+            boton.dataset.fecha =
+                dia.fecha;
 
             if (dia.es_fecha_actual) {
                 boton.classList.add(
@@ -340,13 +485,26 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
         ocultarMensaje();
 
+        const profesionalId =
+            obtenerProfesionalSeleccionado();
+
+        if (!profesionalId) {
+            mostrarMensaje(
+                "Selecciona primero un profesional."
+            );
+
+            return;
+        }
+
         campoFecha.value =
             fechaSeleccionada;
 
         campoHora.value = "";
 
         document
-            .querySelectorAll(".dia-calendario")
+            .querySelectorAll(
+                ".dia-calendario"
+            )
             .forEach((dia) => {
                 dia.classList.toggle(
                     "seleccionada",
@@ -370,13 +528,27 @@ document.addEventListener("DOMContentLoaded", () => {
             "oculto"
         );
 
+        if (solicitudHorarios) {
+            solicitudHorarios.abort();
+        }
+
+        solicitudHorarios =
+            new AbortController();
+
         try {
             const parametros = new URLSearchParams({
                 fecha: fechaSeleccionada,
+
+                profesional_id:
+                    profesionalId,
             });
 
             const respuesta = await fetch(
-                `${urlHorarios}?${parametros}`
+                `${urlHorarios}?${parametros}`,
+                {
+                    signal:
+                        solicitudHorarios.signal,
+                }
             );
 
             const datos = await respuesta.json();
@@ -396,6 +568,10 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
         } catch (error) {
+            if (error.name === "AbortError") {
+                return;
+            }
+
             listaHorarios.innerHTML = `
                 <div class="estado-vacio">
                     <span>⚠️</span>
@@ -411,6 +587,8 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
 
         } finally {
+            solicitudHorarios = null;
+
             cargandoHorarios.classList.add(
                 "oculto"
             );
@@ -443,13 +621,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
             `;
 
+            campoHora.value = "";
+
+            actualizarResumen();
+
             return;
         }
 
         horarios.forEach((hora) => {
-            const boton = document.createElement(
-                "button"
-            );
+            const boton =
+                document.createElement("button");
 
             boton.type = "button";
 
@@ -458,7 +639,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             boton.dataset.hora = hora;
 
-            boton.textContent = hora;
+            boton.textContent =
+                hora.slice(0, 5);
 
             boton.addEventListener(
                 "click",
@@ -492,7 +674,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
         ocultarMensaje();
 
-        campoHora.value = hora;
+        campoHora.value =
+            hora.slice(0, 5);
 
         document
             .querySelectorAll(
@@ -510,6 +693,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
         actualizarResumen();
     }
+
+
+    async function cambiarProfesional() {
+        ocultarMensaje();
+
+        limpiarFechaYHora();
+
+        const fechaCita =
+            fechaDesdeISO(fechaActual);
+
+        mesVisible = new Date(
+            hoy.getFullYear(),
+            hoy.getMonth(),
+            1
+        );
+
+        if (
+            selectorProfesional.value
+            === profesionalActual
+            && fechaCita
+            && fechaCita >= hoy
+        ) {
+            mesVisible = new Date(
+                fechaCita.getFullYear(),
+                fechaCita.getMonth(),
+                1
+            );
+        }
+
+        actualizarResumen();
+
+        await cargarCalendario();
+    }
+
+
+    selectorProfesional.addEventListener(
+        "change",
+        cambiarProfesional
+    );
 
 
     botonMesAnterior.addEventListener(
@@ -533,27 +755,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             mesVisible = mesAnterior;
 
-            campoFecha.value = "";
-            campoHora.value = "";
-
-            fechaSeleccionadaTexto.textContent =
-                "Selecciona una fecha verde.";
-
-            listaHorarios.innerHTML = `
-                <div class="estado-vacio">
-                    <span>🕐</span>
-
-                    <strong>
-                        Sin fecha seleccionada
-                    </strong>
-
-                    <p>
-                        Los horarios disponibles aparecerán aquí.
-                    </p>
-                </div>
-            `;
-
-            actualizarResumen();
+            limpiarFechaYHora();
 
             await cargarCalendario();
         }
@@ -569,27 +771,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 1
             );
 
-            campoFecha.value = "";
-            campoHora.value = "";
-
-            fechaSeleccionadaTexto.textContent =
-                "Selecciona una fecha verde.";
-
-            listaHorarios.innerHTML = `
-                <div class="estado-vacio">
-                    <span>🕐</span>
-
-                    <strong>
-                        Sin fecha seleccionada
-                    </strong>
-
-                    <p>
-                        Los horarios disponibles aparecerán aquí.
-                    </p>
-                </div>
-            `;
-
-            actualizarResumen();
+            limpiarFechaYHora();
 
             await cargarCalendario();
         }
@@ -600,6 +782,19 @@ document.addEventListener("DOMContentLoaded", () => {
         "submit",
         (evento) => {
             ocultarMensaje();
+
+            const profesionalId =
+                obtenerProfesionalSeleccionado();
+
+            if (!profesionalId) {
+                evento.preventDefault();
+
+                mostrarMensaje(
+                    "Selecciona un profesional."
+                );
+
+                return;
+            }
 
             if (!campoFecha.value) {
                 evento.preventDefault();
@@ -621,29 +816,42 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
+            const mismoProfesional =
+                profesionalId
+                === profesionalActual;
+
             const mismaFecha =
-                campoFecha.value === fechaActual;
+                campoFecha.value
+                === fechaActual;
 
             const mismaHora =
                 campoHora.value.slice(0, 5)
                 === horaActual.slice(0, 5);
 
-            if (mismaFecha && mismaHora) {
+            if (
+                mismoProfesional
+                && mismaFecha
+                && mismaHora
+            ) {
                 evento.preventDefault();
 
                 mostrarMensaje(
-                    "Selecciona una fecha u hora diferente a la actual."
+                    "Selecciona un profesional, fecha u hora diferente."
                 );
 
                 return;
             }
 
             const confirmado = window.confirm(
-                "¿Confirmas la nueva fecha y hora de la cita?"
+                (
+                    "¿Confirmas la nueva programación "
+                    + "de la cita?"
+                )
             );
 
             if (!confirmado) {
                 evento.preventDefault();
+
                 return;
             }
 
@@ -656,34 +864,52 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     async function iniciar() {
-        const fechaCita = fechaDesdeISO(
-            fechaActual
-        );
+        if (
+            selectorProfesional
+            && profesionalSeleccionadoInicial
+        ) {
+            selectorProfesional.value =
+                profesionalSeleccionadoInicial;
+        }
+
+        const fechaSeleccionada =
+            fechaDesdeISO(
+                fechaSeleccionadaInicial
+            );
 
         if (
-            fechaCita
-            && fechaCita >= hoy
+            fechaSeleccionada
+            && fechaSeleccionada >= hoy
         ) {
             mesVisible = new Date(
-                fechaCita.getFullYear(),
-                fechaCita.getMonth(),
+                fechaSeleccionada.getFullYear(),
+                fechaSeleccionada.getMonth(),
                 1
             );
         }
 
+        campoFecha.value =
+            fechaSeleccionadaInicial;
+
+        campoHora.value =
+            horaSeleccionadaInicial;
+
+        actualizarResumen();
+
         await cargarCalendario();
 
         if (
-            fechaCita
-            && fechaCita >= hoy
+            fechaSeleccionada
+            && fechaSeleccionada >= hoy
         ) {
             await seleccionarFecha(
-                fechaActual,
-                horaActual
+                fechaSeleccionadaInicial,
+                horaSeleccionadaInicial
             );
-        }
 
-        actualizarResumen();
+        } else {
+            limpiarFechaYHora();
+        }
     }
 
 

@@ -1,5 +1,29 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+body {
+    min-height: 100vh;
+
+    background: #f4f8fb;
+    color: #1e293b;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+
+
 .pagina-reprogramacion {
-    width: min(1050px, calc(100% - 32px));
+    width: min(
+        1050px,
+        calc(100% - 32px)
+    );
+
     margin: 32px auto 50px;
 }
 
@@ -10,25 +34,142 @@
 
 
 .cabecera-reprogramacion h1 {
-    font-size: clamp(26px, 4vw, 35px);
+    margin-top: 9px;
+
+    color: #0f172a;
+
+    font-size: clamp(
+        26px,
+        4vw,
+        35px
+    );
 }
 
 
 .cabecera-reprogramacion p {
+    max-width: 650px;
+
     margin-top: 8px;
 
     color: #64748b;
+
     font-size: 12px;
     line-height: 1.6;
 }
 
 
+.etiqueta {
+    display: inline-block;
+
+    padding: 6px 10px;
+
+    border: 1px solid #bae6fd;
+    border-radius: 999px;
+
+    background: #eaf7ff;
+    color: #0369a1;
+
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+
+/* =====================================
+   SELECTOR DEL PROFESIONAL
+===================================== */
+
+.selector-profesional {
+    margin-bottom: 20px;
+}
+
+
+.campo-profesional {
+    max-width: 560px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+
+.campo-profesional label {
+    color: #334155;
+
+    font-size: 10px;
+    font-weight: 900;
+}
+
+
+.campo-profesional select {
+    width: 100%;
+    min-height: 46px;
+
+    padding: 11px 42px 11px 13px;
+
+    border: 1px solid #bae6fd;
+    border-radius: 11px;
+    outline: none;
+
+    background-color: #ffffff;
+    color: #1e293b;
+
+    cursor: pointer;
+
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.campo-profesional select:hover {
+    border-color: #38bdf8;
+}
+
+
+.campo-profesional select:focus {
+    border-color: #0ea5e9;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(14, 165, 233, 0.12);
+}
+
+
+.campo-profesional select:disabled {
+    cursor: not-allowed;
+
+    background: #f1f5f9;
+    color: #94a3b8;
+}
+
+
+.ayuda-campo {
+    color: #64748b;
+
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+
+/* =====================================
+   DISTRIBUCIÓN PRINCIPAL
+===================================== */
+
 .distribucion-reprogramacion {
     display: grid;
+
     grid-template-columns:
         minmax(0, 1.1fr)
         minmax(280px, 0.9fr);
+
     gap: 20px;
+
     align-items: start;
 }
 
@@ -38,6 +179,10 @@
     min-height: 440px;
 }
 
+
+/* =====================================
+   CALENDARIO
+===================================== */
 
 .calendario-cabecera {
     margin-bottom: 16px;
@@ -50,6 +195,8 @@
 
 
 .calendario-cabecera h3 {
+    color: #1e293b;
+
     font-size: 15px;
 }
 
@@ -69,13 +216,29 @@
 
     cursor: pointer;
 
+    font-family: inherit;
     font-size: 22px;
     font-weight: 900;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.boton-mes:hover:not(:disabled) {
+    transform: translateY(-2px);
+
+    border-color: #38bdf8;
+
+    background: #dff4ff;
 }
 
 
 .boton-mes:disabled {
     opacity: 0.4;
+
     cursor: not-allowed;
 }
 
@@ -83,7 +246,10 @@
 .dias-semana,
 .calendario-dias {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+
+    grid-template-columns:
+        repeat(7, 1fr);
+
     gap: 7px;
 }
 
@@ -122,12 +288,14 @@
 
     transition:
         transform 0.2s ease,
-        border-color 0.2s ease;
+        border-color 0.2s ease,
+        background 0.2s ease;
 }
 
 
 .dia-calendario.disponible {
     border-color: #86efac;
+
     background: #dcfce7;
     color: #166534;
 }
@@ -135,7 +303,10 @@
 
 .dia-calendario.disponible:hover {
     transform: translateY(-2px);
+
     border-color: #22c55e;
+
+    background: #bbf7d0;
 }
 
 
@@ -152,10 +323,21 @@
 }
 
 
+.dia-calendario:disabled {
+    cursor: not-allowed;
+}
+
+
 .dia-calendario.seleccionada {
     border-color: #0ea5e9;
+
     background: #0ea5e9;
     color: #ffffff;
+}
+
+
+.dia-calendario.seleccionada:hover {
+    background: #0284c7;
 }
 
 
@@ -164,6 +346,10 @@
         inset 0 0 0 2px #7c3aed;
 }
 
+
+/* =====================================
+   LEYENDA
+===================================== */
 
 .leyenda-calendario {
     margin-top: 17px;
@@ -180,6 +366,7 @@
     gap: 6px;
 
     color: #64748b;
+
     font-size: 9px;
     font-weight: 700;
 }
@@ -220,18 +407,26 @@
 }
 
 
+/* =====================================
+   HORARIOS
+===================================== */
+
 .lista-horarios-reprogramacion {
     display: grid;
-    grid-template-columns: repeat(
-        3,
-        minmax(0, 1fr)
-    );
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0, 1fr)
+        );
+
     gap: 9px;
 }
 
 
 .boton-horario-reprogramacion {
     min-height: 40px;
+
     padding: 8px;
 
     border: 1px solid #bae6fd;
@@ -248,21 +443,70 @@
 
     transition:
         transform 0.2s ease,
-        background 0.2s ease;
+        background 0.2s ease,
+        border-color 0.2s ease;
 }
 
 
 .boton-horario-reprogramacion:hover {
     transform: translateY(-2px);
+
+    border-color: #38bdf8;
+
+    background: #dff4ff;
 }
 
 
 .boton-horario-reprogramacion.seleccionado {
     border-color: #0ea5e9;
+
     background: #0ea5e9;
     color: #ffffff;
 }
 
+
+.estado-vacio {
+    grid-column: 1 / -1;
+
+    min-height: 180px;
+
+    padding: 25px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    color: #64748b;
+
+    text-align: center;
+}
+
+
+.estado-vacio span {
+    font-size: 25px;
+}
+
+
+.estado-vacio strong {
+    color: #334155;
+
+    font-size: 11px;
+}
+
+
+.estado-vacio p {
+    max-width: 280px;
+
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+
+/* =====================================
+   RESUMEN
+===================================== */
 
 .resumen-reprogramacion {
     margin-top: 20px;
@@ -271,10 +515,13 @@
 
 .cuadricula-resumen-reprogramacion {
     display: grid;
-    grid-template-columns: repeat(
-        2,
-        minmax(0, 1fr)
-    );
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0, 1fr)
+        );
+
     gap: 15px;
 }
 
@@ -291,13 +538,16 @@
 
 .bloque-resumen-nuevo {
     border-color: #bae6fd;
+
     background: #f0f9ff;
 }
 
 
 .titulo-bloque-resumen {
     display: inline-block;
+
     margin-bottom: 13px;
+
     padding: 5px 8px;
 
     border-radius: 999px;
@@ -336,6 +586,7 @@
 
 .dato-resumen span {
     color: #64748b;
+
     font-size: 9px;
     font-weight: 700;
 }
@@ -343,12 +594,15 @@
 
 .dato-resumen strong {
     color: #1e293b;
+
     font-size: 11px;
+    line-height: 1.4;
 }
 
 
 .mensaje-cambio {
     margin-top: 13px;
+
     padding: 11px;
 
     display: flex;
@@ -364,10 +618,15 @@
 
 .mensaje-cambio p {
     color: #0369a1;
+
     font-size: 9px;
     line-height: 1.5;
 }
 
+
+/* =====================================
+   ACCIONES Y MENSAJES
+===================================== */
 
 .acciones-reprogramacion {
     margin-top: 20px;
@@ -380,6 +639,7 @@
 
 .mensaje-validacion {
     margin-top: 17px;
+
     padding: 12px 14px;
 
     border: 1px solid #fecaca;
@@ -394,14 +654,19 @@
 
 
 .estado-cargando {
+    min-height: 180px;
+
     padding: 30px;
 
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 10px;
 
     color: #64748b;
+
+    font-size: 10px;
     text-align: center;
 }
 
@@ -414,7 +679,8 @@
     border-top-color: #0ea5e9;
     border-radius: 50%;
 
-    animation: girar 0.75s linear infinite;
+    animation:
+        girar 0.75s linear infinite;
 }
 
 
@@ -430,6 +696,10 @@
 }
 
 
+/* =====================================
+   TABLET
+===================================== */
+
 @media (max-width: 800px) {
 
     .distribucion-reprogramacion,
@@ -437,48 +707,81 @@
         grid-template-columns: 1fr;
     }
 
+
     .calendario-reprogramacion,
     .horarios-reprogramacion {
         min-height: auto;
     }
 
+
+    .campo-profesional {
+        max-width: 100%;
+    }
+
 }
 
+
+/* =====================================
+   CELULAR
+===================================== */
 
 @media (max-width: 520px) {
 
     .pagina-reprogramacion {
-        width: min(100% - 20px, 1050px);
+        width: min(
+            100% - 20px,
+            1050px
+        );
+
         margin-top: 20px;
     }
+
 
     .panel-seccion {
         padding: 15px;
     }
+
 
     .dias-semana,
     .calendario-dias {
         gap: 4px;
     }
 
+
     .dia-calendario,
     .dia-vacio {
         min-height: 37px;
     }
 
+
     .lista-horarios-reprogramacion {
-        grid-template-columns: repeat(
-            2,
-            minmax(0, 1fr)
-        );
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
     }
+
 
     .acciones-reprogramacion {
         flex-direction: column;
     }
 
+
     .acciones-reprogramacion .boton {
         width: 100%;
+    }
+
+
+    .campo-profesional select {
+        min-height: 44px;
+
+        font-size: 10px;
+    }
+
+
+    .leyenda-calendario {
+        gap: 8px;
     }
 
 }
