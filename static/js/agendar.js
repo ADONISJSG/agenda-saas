@@ -27,12 +27,12 @@ document.addEventListener("DOMContentLoaded", () => {
         "id_especialidad"
     );
 
-    const campoProfesional = document.getElementById(
-        "id_profesional"
-    );
-
     const campoServicio = document.getElementById(
         "id_servicio"
+    );
+
+    const campoProfesional = document.getElementById(
+        "id_profesional"
     );
 
     const campoFecha = document.getElementById(
@@ -45,6 +45,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const listaEspecialidades = document.getElementById(
         "lista-especialidades"
+    );
+
+    const listaServicios = document.getElementById(
+        "lista-servicios"
+    );
+
+    const estadoServicios = document.getElementById(
+        "estado-servicios"
     );
 
     const listaProfesionales = document.getElementById(
@@ -119,6 +127,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const especialidadInicial =
         contenedor.dataset.especialidadInicial || "";
 
+    const servicioInicial =
+        contenedor.dataset.servicioInicial || "";
+
     const profesionalInicial =
         contenedor.dataset.profesionalInicial || "";
 
@@ -148,17 +159,18 @@ document.addEventListener("DOMContentLoaded", () => {
         nombre: "",
     };
 
-    let profesionalSeleccionado = {
-        id: "",
-        nombre: "",
-    };
-
     let servicioSeleccionado = {
         id: "",
         nombre: "",
+        duracion: "",
         precio: "0.00",
         anticipo: "0.00",
         saldo: "0.00",
+    };
+
+    let profesionalSeleccionado = {
+        id: "",
+        nombre: "",
     };
 
 
@@ -359,7 +371,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (campo) {
             campo.focus();
-
             campo.reportValidity?.();
         }
     }
@@ -367,18 +378,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function validarPasoUno() {
         const camposObligatorios = [
-            ["id_nombres", "Ingresa los nombres completos."],
-            ["id_apellidos", "Ingresa los apellidos completos."],
-            ["id_nacionalidad", "Ingresa la nacionalidad."],
+            [
+                "id_nombres",
+                "Ingresa los nombres completos.",
+            ],
+            [
+                "id_apellidos",
+                "Ingresa los apellidos completos.",
+            ],
+            [
+                "id_nacionalidad",
+                "Ingresa la nacionalidad.",
+            ],
             [
                 "id_tipo_documento",
-                "Selecciona el tipo de documento.",
+                "Selecciona el tipo de identificación.",
             ],
             [
                 "id_cedula",
-                "Ingresa el número de documento.",
+                "Ingresa el número de identificación.",
             ],
-            ["id_celular", "Ingresa el número celular."],
+            [
+                "id_celular",
+                "Ingresa el número celular.",
+            ],
         ];
 
         for (const [
@@ -436,6 +459,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function validarPasoTres() {
         if (
+            !campoServicio
+            || !campoServicio.value
+        ) {
+            mostrarMensajePaso(
+                3,
+                "Selecciona uno de los servicios disponibles."
+            );
+
+            return false;
+        }
+
+        if (
             !campoProfesional
             || !campoProfesional.value
         ) {
@@ -476,7 +511,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ) {
             mostrarMensajePaso(
                 4,
-                "No se pudo identificar el servicio. Selecciona nuevamente la fecha."
+                "No se pudo identificar el servicio."
             );
 
             return false;
@@ -600,6 +635,87 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
+    function reiniciarValoresServicio() {
+        servicioSeleccionado.precio = "0.00";
+        servicioSeleccionado.anticipo = "0.00";
+        servicioSeleccionado.saldo = "0.00";
+    }
+
+
+    function limpiarServicio() {
+        servicioSeleccionado = {
+            id: "",
+            nombre: "",
+            duracion: "",
+            precio: "0.00",
+            anticipo: "0.00",
+            saldo: "0.00",
+        };
+
+        if (campoServicio) {
+            campoServicio.value = "";
+        }
+
+        document
+            .querySelectorAll(".tarjeta-servicio")
+            .forEach((tarjeta) => {
+                tarjeta.classList.remove(
+                    "seleccionada"
+                );
+            });
+
+        actualizarResumen();
+    }
+
+
+    function mostrarServiciosEspecialidad(
+        especialidadId
+    ) {
+        const tarjetas = Array.from(
+            document.querySelectorAll(
+                ".tarjeta-servicio"
+            )
+        );
+
+        let cantidadDisponibles = 0;
+
+        tarjetas.forEach((tarjeta) => {
+            const coincide =
+                tarjeta.dataset.especialidadId
+                === String(especialidadId);
+
+            tarjeta.classList.toggle(
+                "oculto",
+                !coincide
+            );
+
+            if (coincide) {
+                cantidadDisponibles += 1;
+            }
+        });
+
+        if (estadoServicios) {
+            estadoServicios.classList.toggle(
+                "oculto",
+                cantidadDisponibles > 0
+            );
+
+            if (!cantidadDisponibles) {
+                estadoServicios.innerHTML = `
+                    <span>🧾</span>
+                    <strong>
+                        No hay servicios disponibles
+                    </strong>
+                    <p>
+                        Esta especialidad no tiene
+                        servicios activos.
+                    </p>
+                `;
+            }
+        }
+    }
+
+
     function limpiarProfesional() {
         profesionalSeleccionado = {
             id: "",
@@ -611,7 +727,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         textoProfesional.textContent =
-            "Selecciona un profesional para consultar su agenda.";
+            "Selecciona un servicio y un profesional.";
 
         limpiarAgenda();
     }
@@ -626,25 +742,15 @@ document.addEventListener("DOMContentLoaded", () => {
             campoHora.value = "";
         }
 
-        if (campoServicio) {
-            campoServicio.value = "";
-        }
-
-        servicioSeleccionado = {
-            id: "",
-            nombre: "",
-            precio: "0.00",
-            anticipo: "0.00",
-            saldo: "0.00",
-        };
+        reiniciarValoresServicio();
 
         calendarioDias.innerHTML = `
             <div class="estado-vacio calendario-vacio">
                 <span>📆</span>
                 <strong>Calendario pendiente</strong>
                 <p>
-                    Selecciona un profesional para
-                    consultar su agenda.
+                    Selecciona un servicio y
+                    un profesional.
                 </p>
             </div>
         `;
@@ -662,6 +768,47 @@ document.addEventListener("DOMContentLoaded", () => {
 
         fechaHorarios.textContent =
             "Selecciona una fecha verde.";
+
+        actualizarResumen();
+    }
+
+
+    async function seleccionarServicio(
+        servicioId,
+        servicioNombre,
+        servicioDuracion,
+        opciones = {}
+    ) {
+        servicioSeleccionado = {
+            id: String(servicioId),
+            nombre: servicioNombre,
+            duracion: String(servicioDuracion || ""),
+            precio: "0.00",
+            anticipo: "0.00",
+            saldo: "0.00",
+        };
+
+        campoServicio.value =
+            String(servicioId);
+
+        document
+            .querySelectorAll(".tarjeta-servicio")
+            .forEach((tarjeta) => {
+                tarjeta.classList.toggle(
+                    "seleccionada",
+                    tarjeta.dataset.servicioId
+                    === String(servicioId)
+                );
+            });
+
+        limpiarAgenda();
+
+        if (
+            profesionalSeleccionado.id
+            && opciones.cargarCalendario !== false
+        ) {
+            await cargarCalendario();
+        }
 
         actualizarResumen();
     }
@@ -691,9 +838,14 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
         textoEspecialidad.textContent =
-            `Profesionales de ${especialidadNombre}`;
+            `Servicios y profesionales de ${especialidadNombre}`;
 
+        limpiarServicio();
         limpiarProfesional();
+
+        mostrarServiciosEspecialidad(
+            especialidadId
+        );
 
         cargandoProfesionales.classList.remove(
             "oculto"
@@ -726,6 +878,28 @@ document.addEventListener("DOMContentLoaded", () => {
                 datos.profesionales
             );
 
+            if (opciones.servicioInicial) {
+                const tarjetaServicio =
+                    listaServicios.querySelector(
+                        `[data-servicio-id="${opciones.servicioInicial}"]`
+                    );
+
+                if (
+                    tarjetaServicio
+                    && tarjetaServicio.dataset.especialidadId
+                    === String(especialidadId)
+                ) {
+                    await seleccionarServicio(
+                        opciones.servicioInicial,
+                        tarjetaServicio.dataset.servicioNombre,
+                        tarjetaServicio.dataset.servicioDuracion,
+                        {
+                            cargarCalendario: false,
+                        }
+                    );
+                }
+            }
+
             if (opciones.profesionalInicial) {
                 const tarjetaProfesional =
                     listaProfesionales.querySelector(
@@ -740,12 +914,14 @@ document.addEventListener("DOMContentLoaded", () => {
                         {
                             fechaInicial:
                                 opciones.fechaInicial,
+
                             horaInicial:
                                 opciones.horaInicial,
                         }
                     );
                 }
             }
+
         } catch (error) {
             listaProfesionales.innerHTML = `
                 <div class="estado-vacio">
@@ -757,6 +933,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <p>${escaparTexto(error.message)}</p>
                 </div>
             `;
+
         } finally {
             cargandoProfesionales.classList.add(
                 "oculto"
@@ -870,25 +1047,7 @@ document.addEventListener("DOMContentLoaded", () => {
         textoProfesional.textContent =
             `Agenda de ${profesionalNombre}`;
 
-        if (campoFecha) {
-            campoFecha.value = "";
-        }
-
-        if (campoHora) {
-            campoHora.value = "";
-        }
-
-        if (campoServicio) {
-            campoServicio.value = "";
-        }
-
-        servicioSeleccionado = {
-            id: "",
-            nombre: "",
-            precio: "0.00",
-            anticipo: "0.00",
-            saldo: "0.00",
-        };
+        limpiarAgenda();
 
         const fechaRestaurada = fechaDesdeISO(
             opciones.fechaInicial
@@ -906,6 +1065,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 hoy.getMonth(),
                 1
             );
+        }
+
+        if (!servicioSeleccionado.id) {
+            calendarioDias.innerHTML = `
+                <div class="estado-vacio calendario-vacio">
+                    <span>🧾</span>
+                    <strong>
+                        Selecciona un servicio
+                    </strong>
+                    <p>
+                        Debes escoger el servicio antes
+                        de consultar la agenda.
+                    </p>
+                </div>
+            `;
+
+            actualizarResumen();
+            return;
         }
 
         await cargarCalendario();
@@ -940,8 +1117,34 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
 
+    listaServicios?.addEventListener(
+        "click",
+        (evento) => {
+            const tarjeta = evento.target.closest(
+                ".tarjeta-servicio"
+            );
+
+            if (
+                !tarjeta
+                || tarjeta.classList.contains("oculto")
+            ) {
+                return;
+            }
+
+            seleccionarServicio(
+                tarjeta.dataset.servicioId,
+                tarjeta.dataset.servicioNombre,
+                tarjeta.dataset.servicioDuracion
+            );
+        }
+    );
+
+
     async function cargarCalendario() {
-        if (!profesionalSeleccionado.id) {
+        if (
+            !profesionalSeleccionado.id
+            || !servicioSeleccionado.id
+        ) {
             return;
         }
 
@@ -961,6 +1164,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const parametros = new URLSearchParams({
                 profesional_id:
                     profesionalSeleccionado.id,
+
+                servicio_id:
+                    servicioSeleccionado.id,
 
                 anio:
                     String(mesVisible.getFullYear()),
@@ -983,6 +1189,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             renderizarCalendario(datos);
+
         } catch (error) {
             calendarioDias.innerHTML = `
                 <div class="estado-vacio calendario-vacio">
@@ -1087,6 +1294,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 profesional_id:
                     profesionalSeleccionado.id,
 
+                servicio_id:
+                    servicioSeleccionado.id,
+
                 fecha:
                     fechaSeleccionada,
             });
@@ -1107,6 +1317,9 @@ document.addEventListener("DOMContentLoaded", () => {
             servicioSeleccionado = {
                 id: String(datos.servicio.id),
                 nombre: datos.servicio.nombre,
+                duracion: String(
+                    datos.servicio.duracion_minutos
+                ),
                 precio: datos.servicio.precio,
                 anticipo: datos.servicio.anticipo,
                 saldo: datos.servicio.saldo,
@@ -1121,6 +1334,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             actualizarResumen();
+
         } catch (error) {
             listaHorarios.innerHTML = `
                 <div class="estado-vacio">
@@ -1132,6 +1346,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <p>${escaparTexto(error.message)}</p>
                 </div>
             `;
+
         } finally {
             cargandoHorarios.classList.add(
                 "oculto"
@@ -1244,7 +1459,10 @@ document.addEventListener("DOMContentLoaded", () => {
             campoFecha.value = "";
             campoHora.value = "";
 
+            reiniciarValoresServicio();
+
             await cargarCalendario();
+            actualizarResumen();
         }
     );
 
@@ -1261,7 +1479,10 @@ document.addEventListener("DOMContentLoaded", () => {
             campoFecha.value = "";
             campoHora.value = "";
 
+            reiniciarValoresServicio();
+
             await cargarCalendario();
+            actualizarResumen();
         }
     );
 
@@ -1293,51 +1514,93 @@ document.addEventListener("DOMContentLoaded", () => {
             `${nombres} ${apellidos}`
         ).trim();
 
-        document.getElementById(
+        const resumenUsuario = document.getElementById(
             "resumen-usuario"
-        ).textContent =
-            usuario || "Sin información";
+        );
 
-        document.getElementById(
+        const resumenEspecialidad = document.getElementById(
             "resumen-especialidad"
-        ).textContent =
-            especialidadSeleccionada.nombre
-            || "Sin seleccionar";
+        );
 
-        document.getElementById(
+        const resumenServicio = document.getElementById(
+            "resumen-servicio"
+        );
+
+        const resumenProfesional = document.getElementById(
             "resumen-profesional"
-        ).textContent =
-            profesionalSeleccionado.nombre
-            || "Sin seleccionar";
+        );
 
-        document.getElementById(
+        const resumenFecha = document.getElementById(
             "resumen-fecha"
-        ).textContent =
-            campoFecha.value
-            ? formatearFecha(campoFecha.value)
-            : "Sin seleccionar";
+        );
 
-        document.getElementById(
+        const resumenHora = document.getElementById(
             "resumen-hora"
-        ).textContent =
-            campoHora.value
-            ? campoHora.value.slice(0, 5)
-            : "Sin seleccionar";
+        );
 
-        document.getElementById(
+        const resumenPrecio = document.getElementById(
             "resumen-precio"
-        ).textContent =
-            servicioSeleccionado.precio;
+        );
 
-        document.getElementById(
+        const resumenAnticipo = document.getElementById(
             "resumen-anticipo"
-        ).textContent =
-            servicioSeleccionado.anticipo;
+        );
 
-        document.getElementById(
+        const resumenSaldo = document.getElementById(
             "resumen-saldo"
-        ).textContent =
-            servicioSeleccionado.saldo;
+        );
+
+        if (resumenUsuario) {
+            resumenUsuario.textContent =
+                usuario || "Sin información";
+        }
+
+        if (resumenEspecialidad) {
+            resumenEspecialidad.textContent =
+                especialidadSeleccionada.nombre
+                || "Sin seleccionar";
+        }
+
+        if (resumenServicio) {
+            resumenServicio.textContent =
+                servicioSeleccionado.nombre
+                || "Sin seleccionar";
+        }
+
+        if (resumenProfesional) {
+            resumenProfesional.textContent =
+                profesionalSeleccionado.nombre
+                || "Sin seleccionar";
+        }
+
+        if (resumenFecha) {
+            resumenFecha.textContent =
+                campoFecha.value
+                ? formatearFecha(campoFecha.value)
+                : "Sin seleccionar";
+        }
+
+        if (resumenHora) {
+            resumenHora.textContent =
+                campoHora.value
+                ? campoHora.value.slice(0, 5)
+                : "Sin seleccionar";
+        }
+
+        if (resumenPrecio) {
+            resumenPrecio.textContent =
+                servicioSeleccionado.precio;
+        }
+
+        if (resumenAnticipo) {
+            resumenAnticipo.textContent =
+                servicioSeleccionado.anticipo;
+        }
+
+        if (resumenSaldo) {
+            resumenSaldo.textContent =
+                servicioSeleccionado.saldo;
+        }
     }
 
 
@@ -1362,7 +1625,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const esTransferencia =
             seleccionado?.value === "TRANSFERENCIA";
 
-        contenedorReferencia.classList.toggle(
+        contenedorReferencia?.classList.toggle(
             "oculto",
             !esTransferencia
         );
@@ -1391,6 +1654,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             botonConfirmar.disabled = true;
+
             botonConfirmar.textContent =
                 "Procesando agendamiento...";
         }
@@ -1432,6 +1696,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 tarjetaEspecialidad.dataset
                     .especialidadNombre,
                 {
+                    servicioInicial,
                     profesionalInicial,
                     fechaInicial,
                     horaInicial,

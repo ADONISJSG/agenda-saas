@@ -27,6 +27,7 @@ def normalizar_documento(documento):
 
 def normalizar_celular(celular):
     celular = celular.strip()
+
     tiene_prefijo = celular.startswith("+")
 
     numeros = re.sub(
@@ -41,7 +42,9 @@ def normalizar_celular(celular):
     return numeros
 
 
-def validar_cedula_ecuatoriana(cedula):
+def validar_cedula_ecuatoriana(
+    cedula,
+):
     if not cedula.isdigit():
         return False
 
@@ -112,7 +115,9 @@ class AgendarCitaForm(forms.Form):
         max_length=150,
         widget=forms.TextInput(
             attrs={
-                "placeholder": "Ejemplo: Luis Aníbal",
+                "placeholder": (
+                    "Ejemplo: Luis Aníbal"
+                ),
                 "autocomplete": "given-name",
             }
         ),
@@ -123,7 +128,9 @@ class AgendarCitaForm(forms.Form):
         max_length=150,
         widget=forms.TextInput(
             attrs={
-                "placeholder": "Ejemplo: Carrillo Saltos",
+                "placeholder": (
+                    "Ejemplo: Carrillo Saltos"
+                ),
                 "autocomplete": "family-name",
             }
         ),
@@ -135,7 +142,9 @@ class AgendarCitaForm(forms.Form):
         initial="Ecuador",
         widget=forms.TextInput(
             attrs={
-                "placeholder": "Ejemplo: Ecuador",
+                "placeholder": (
+                    "Ejemplo: Ecuador"
+                ),
                 "autocomplete": "country-name",
             }
         ),
@@ -165,7 +174,9 @@ class AgendarCitaForm(forms.Form):
         max_length=25,
         widget=forms.TextInput(
             attrs={
-                "placeholder": "Ejemplo: +593991234567",
+                "placeholder": (
+                    "Ejemplo: +593991234567"
+                ),
                 "inputmode": "tel",
                 "autocomplete": "tel",
             }
@@ -198,7 +209,8 @@ class AgendarCitaForm(forms.Form):
     servicio = forms.ModelChoiceField(
         label="Servicio",
         queryset=Servicio.objects.none(),
-        required=False,
+        required=True,
+        empty_label=None,
         widget=forms.HiddenInput(),
     )
 
@@ -223,13 +235,17 @@ class AgendarCitaForm(forms.Form):
     )
 
     referencia_pago = forms.CharField(
-        label="Número de comprobante o referencia",
+        label=(
+            "Número de comprobante "
+            "o referencia"
+        ),
         required=False,
         max_length=120,
         widget=forms.TextInput(
             attrs={
                 "placeholder": (
-                    "Número de comprobante o referencia"
+                    "Número de comprobante "
+                    "o referencia"
                 ),
             }
         ),
@@ -276,7 +292,10 @@ class AgendarCitaForm(forms.Form):
 
         if len(nombres) < 2:
             raise forms.ValidationError(
-                "Ingresa los nombres completos."
+                (
+                    "Ingresa los nombres "
+                    "completos."
+                )
             )
 
         return nombres
@@ -288,7 +307,10 @@ class AgendarCitaForm(forms.Form):
 
         if len(apellidos) < 2:
             raise forms.ValidationError(
-                "Ingresa los apellidos completos."
+                (
+                    "Ingresa los apellidos "
+                    "completos."
+                )
             )
 
         return apellidos
@@ -300,7 +322,10 @@ class AgendarCitaForm(forms.Form):
 
         if len(nacionalidad) < 3:
             raise forms.ValidationError(
-                "Ingresa una nacionalidad válida."
+                (
+                    "Ingresa una nacionalidad "
+                    "válida."
+                )
             )
 
         return nacionalidad.title()
@@ -313,16 +338,18 @@ class AgendarCitaForm(forms.Form):
         if len(identificacion) < 4:
             raise forms.ValidationError(
                 (
-                    "El número de identificación debe "
-                    "tener al menos 4 caracteres."
+                    "El número de identificación "
+                    "debe tener al menos "
+                    "4 caracteres."
                 )
             )
 
         if len(identificacion) > 30:
             raise forms.ValidationError(
                 (
-                    "El número de identificación no puede "
-                    "superar los 30 caracteres."
+                    "El número de identificación "
+                    "no puede superar "
+                    "los 30 caracteres."
                 )
             )
 
@@ -347,8 +374,9 @@ class AgendarCitaForm(forms.Form):
         ):
             raise forms.ValidationError(
                 (
-                    "Ingresa un número celular válido. "
-                    "Puede incluir el código del país."
+                    "Ingresa un número celular "
+                    "válido. Puede incluir el "
+                    "código del país."
                 )
             )
 
@@ -370,8 +398,8 @@ class AgendarCitaForm(forms.Form):
         if fecha < timezone.localdate():
             raise forms.ValidationError(
                 (
-                    "La fecha seleccionada no puede "
-                    "estar en el pasado."
+                    "La fecha seleccionada no "
+                    "puede estar en el pasado."
                 )
             )
 
@@ -461,32 +489,11 @@ class AgendarCitaForm(forms.Form):
             self.add_error(
                 "profesional",
                 (
-                    "El profesional seleccionado no "
-                    "pertenece a esa especialidad."
+                    "El profesional seleccionado "
+                    "no pertenece a esa "
+                    "especialidad."
                 ),
             )
-
-        if especialidad and not servicio:
-            servicio = (
-                Servicio.objects.filter(
-                    especialidad=especialidad,
-                    activo=True,
-                )
-                .order_by("id")
-                .first()
-            )
-
-            if servicio:
-                datos["servicio"] = servicio
-
-            else:
-                self.add_error(
-                    "especialidad",
-                    (
-                        "La especialidad seleccionada "
-                        "no tiene un servicio disponible."
-                    ),
-                )
 
         if (
             servicio
@@ -497,8 +504,23 @@ class AgendarCitaForm(forms.Form):
             self.add_error(
                 "servicio",
                 (
-                    "El servicio no pertenece "
-                    "a la especialidad seleccionada."
+                    "El servicio seleccionado "
+                    "no pertenece a esa "
+                    "especialidad."
+                ),
+            )
+
+        if (
+            profesional
+            and servicio
+            and profesional.especialidad_id
+            != servicio.especialidad_id
+        ):
+            self.add_error(
+                "servicio",
+                (
+                    "El servicio seleccionado no "
+                    "corresponde al profesional."
                 ),
             )
 
@@ -519,8 +541,8 @@ class AgendarCitaForm(forms.Form):
                 self.add_error(
                     "hora",
                     (
-                        "Selecciona una hora posterior "
-                        "a la hora actual."
+                        "Selecciona una hora "
+                        "posterior a la hora actual."
                     ),
                 )
 
@@ -545,18 +567,23 @@ class AgendarCitaForm(forms.Form):
                 self.add_error(
                     "profesional",
                     (
-                        "Selecciona un profesional antes "
-                        "de realizar la transferencia."
+                        "Selecciona un profesional "
+                        "antes de realizar "
+                        "la transferencia."
                     ),
                 )
 
-            elif not profesional.datos_transferencia_completos:
+            elif not (
+                profesional
+                .datos_transferencia_completos
+            ):
                 self.add_error(
                     "metodo_pago",
                     (
-                        "El profesional seleccionado no "
-                        "tiene habilitado el pago mediante "
-                        "transferencia. Selecciona tarjeta."
+                        "El profesional seleccionado "
+                        "no tiene habilitado el pago "
+                        "mediante transferencia. "
+                        "Selecciona tarjeta."
                     ),
                 )
 
@@ -564,8 +591,9 @@ class AgendarCitaForm(forms.Form):
                 self.add_error(
                     "referencia_pago",
                     (
-                        "Ingresa el número del comprobante "
-                        "o referencia de la transferencia."
+                        "Ingresa el número del "
+                        "comprobante o referencia "
+                        "de la transferencia."
                     ),
                 )
 
@@ -590,7 +618,9 @@ class AgendarCitaForm(forms.Form):
         fecha_hora_fin = (
             fecha_hora_inicio
             + timedelta(
-                minutes=servicio.duracion_minutos,
+                minutes=(
+                    servicio.duracion_minutos
+                ),
             )
         )
 
@@ -663,7 +693,8 @@ class AgendarCitaForm(forms.Form):
                 "hora",
                 (
                     "La hora seleccionada no está "
-                    "dentro del horario de atención."
+                    "dentro del horario "
+                    "de atención."
                 ),
             )
 
@@ -680,8 +711,8 @@ class AgendarCitaForm(forms.Form):
                 self.add_error(
                     "fecha",
                     (
-                        "El profesional no está disponible "
-                        "en esa fecha."
+                        "El profesional no está "
+                        "disponible en esa fecha."
                     ),
                 )
 
@@ -758,8 +789,9 @@ class AgendarCitaForm(forms.Form):
                 self.add_error(
                     "hora",
                     (
-                        "Ese horario ya fue separado. "
-                        "Selecciona otro disponible."
+                        "Ese horario ya fue "
+                        "separado. Selecciona "
+                        "otro disponible."
                     ),
                 )
 

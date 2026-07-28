@@ -40,18 +40,9 @@ def intervalos_se_superponen(
     )
 
 
-def obtener_servicio_principal(especialidad):
-    return (
-        Servicio.objects.filter(
-            especialidad=especialidad,
-            activo=True,
-        )
-        .order_by("id")
-        .first()
-    )
-
-
-def obtener_horarios_profesional(profesional):
+def obtener_horarios_profesional(
+    profesional,
+):
     return list(
         HorarioProfesional.objects.filter(
             profesional=profesional,
@@ -109,7 +100,9 @@ def obtener_citas_profesional(
     )
 
 
-def obtener_datos_transferencia(profesional):
+def obtener_datos_transferencia(
+    profesional,
+):
     habilitada = (
         profesional.datos_transferencia_completos
     )
@@ -172,8 +165,10 @@ def obtener_horas_disponibles(
     horarios_del_dia = [
         horario
         for horario in horarios
-        if horario.dia_semana
-        == fecha_seleccionada.weekday()
+        if (
+            horario.dia_semana
+            == fecha_seleccionada.weekday()
+        )
     ]
 
     if not horarios_del_dia:
@@ -223,7 +218,9 @@ def obtener_horas_disponibles(
             fin_turno = (
                 hora_actual
                 + timedelta(
-                    minutes=servicio.duracion_minutos,
+                    minutes=(
+                        servicio.duracion_minutos
+                    ),
                 )
             )
 
@@ -236,7 +233,9 @@ def obtener_horas_disponibles(
                 and hora_actual <= ahora
             ):
                 hora_actual += timedelta(
-                    minutes=horario.intervalo_minutos,
+                    minutes=(
+                        horario.intervalo_minutos
+                    ),
                 )
 
                 continue
@@ -272,7 +271,9 @@ def obtener_horas_disponibles(
 
             if bloqueada:
                 hora_actual += timedelta(
-                    minutes=horario.intervalo_minutos,
+                    minutes=(
+                        horario.intervalo_minutos
+                    ),
                 )
 
                 continue
@@ -315,7 +316,9 @@ def obtener_horas_disponibles(
                 )
 
             hora_actual += timedelta(
-                minutes=horario.intervalo_minutos,
+                minutes=(
+                    horario.intervalo_minutos
+                ),
             )
 
     return sorted(
@@ -412,8 +415,8 @@ def agendar_cita(request):
                 "especialidad",
             )
             .order_by(
-                "especialidad",
-                "id",
+                "especialidad__nombre",
+                "nombre",
             )
         ),
 
@@ -455,7 +458,9 @@ def confirmacion_cita(
 
 
 @require_GET
-def profesionales_por_especialidad(request):
+def profesionales_por_especialidad(
+    request,
+):
     especialidad_id = request.GET.get(
         "especialidad_id"
     )
@@ -530,9 +535,15 @@ def profesionales_por_especialidad(request):
 
 
 @require_GET
-def disponibilidad_mensual(request):
+def disponibilidad_mensual(
+    request,
+):
     profesional_id = request.GET.get(
         "profesional_id"
+    )
+
+    servicio_id = request.GET.get(
+        "servicio_id"
     )
 
     anio_texto = request.GET.get(
@@ -548,6 +559,16 @@ def disponibilidad_mensual(request):
             {
                 "error": (
                     "Debes indicar un profesional."
+                )
+            },
+            status=400,
+        )
+
+    if not servicio_id:
+        return JsonResponse(
+            {
+                "error": (
+                    "Debes seleccionar un servicio."
                 )
             },
             status=400,
@@ -594,22 +615,17 @@ def disponibilidad_mensual(request):
         ),
         id=profesional_id,
         activo=True,
+        especialidad__activa=True,
     )
 
-    servicio = obtener_servicio_principal(
-        profesional.especialidad
+    servicio = get_object_or_404(
+        Servicio,
+        id=servicio_id,
+        activo=True,
+        especialidad=(
+            profesional.especialidad
+        ),
     )
-
-    if not servicio:
-        return JsonResponse(
-            {
-                "error": (
-                    "La especialidad del profesional "
-                    "no tiene un servicio activo."
-                )
-            },
-            status=400,
-        )
 
     ultimo_dia = calendar.monthrange(
         anio,
@@ -705,6 +721,15 @@ def disponibilidad_mensual(request):
                 ),
             },
 
+            "servicio": {
+                "id": servicio.id,
+                "nombre": servicio.nombre,
+
+                "duracion_minutos": (
+                    servicio.duracion_minutos
+                ),
+            },
+
             "mes": mes,
 
             "anio": anio,
@@ -737,21 +762,46 @@ def disponibilidad_mensual(request):
 
 
 @require_GET
-def horarios_disponibles(request):
+def horarios_disponibles(
+    request,
+):
     profesional_id = request.GET.get(
         "profesional_id"
+    )
+
+    servicio_id = request.GET.get(
+        "servicio_id"
     )
 
     fecha_texto = request.GET.get(
         "fecha"
     )
 
-    if not profesional_id or not fecha_texto:
+    if not profesional_id:
         return JsonResponse(
             {
                 "error": (
-                    "Debes indicar el profesional "
-                    "y la fecha."
+                    "Debes indicar el profesional."
+                )
+            },
+            status=400,
+        )
+
+    if not servicio_id:
+        return JsonResponse(
+            {
+                "error": (
+                    "Debes seleccionar un servicio."
+                )
+            },
+            status=400,
+        )
+
+    if not fecha_texto:
+        return JsonResponse(
+            {
+                "error": (
+                    "Debes indicar la fecha."
                 )
             },
             status=400,
@@ -795,27 +845,24 @@ def horarios_disponibles(request):
         ),
         id=profesional_id,
         activo=True,
+        especialidad__activa=True,
     )
 
-    servicio = obtener_servicio_principal(
-        profesional.especialidad
+    servicio = get_object_or_404(
+        Servicio,
+        id=servicio_id,
+        activo=True,
+        especialidad=(
+            profesional.especialidad
+        ),
     )
-
-    if not servicio:
-        return JsonResponse(
-            {
-                "error": (
-                    "No existe un servicio activo "
-                    "para esta especialidad."
-                )
-            },
-            status=400,
-        )
 
     horas = obtener_horas_disponibles(
         profesional=profesional,
         servicio=servicio,
-        fecha_seleccionada=fecha_seleccionada,
+        fecha_seleccionada=(
+            fecha_seleccionada
+        ),
     )
 
     precio = servicio.precio
@@ -858,6 +905,10 @@ def horarios_disponibles(request):
                 "id": servicio.id,
 
                 "nombre": servicio.nombre,
+
+                "descripcion": (
+                    servicio.descripcion
+                ),
 
                 "duracion_minutos": (
                     servicio.duracion_minutos

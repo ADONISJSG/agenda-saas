@@ -14,7 +14,7 @@
 
     <link
         rel="stylesheet"
-        href="{% static 'css/panel.css' %}?v=1"
+        href="{% static 'css/panel.css' %}?v=2"
     >
 </head>
 
@@ -116,6 +116,7 @@
             <section class="panel-seccion">
 
                 <div class="cabecera-seccion">
+
                     <div>
                         <h2>Información del usuario</h2>
 
@@ -123,45 +124,54 @@
                             Datos de quien recibirá la atención.
                         </p>
                     </div>
+
                 </div>
 
 
                 <div class="cuadricula-detalle">
 
                     <div class="dato-detalle">
+
                         <span>Nombre completo</span>
 
                         <strong>
                             {{ cita.paciente.nombres }}
                             {{ cita.paciente.apellidos }}
                         </strong>
+
                     </div>
 
 
                     <div class="dato-detalle">
+
                         <span>Identificación</span>
 
                         <strong>
                             {{ cita.paciente.cedula }}
                         </strong>
+
                     </div>
 
 
                     <div class="dato-detalle">
+
                         <span>Celular</span>
 
                         <strong>
                             {{ cita.paciente.celular }}
                         </strong>
+
                     </div>
 
 
                     <div class="dato-detalle">
+
                         <span>Correo</span>
 
                         <strong>
                             {{ cita.paciente.correo|default:"No registrado" }}
                         </strong>
+
                     </div>
 
                 </div>
@@ -172,6 +182,7 @@
             <section class="panel-seccion">
 
                 <div class="cabecera-seccion">
+
                     <div>
                         <h2>Información de la atención</h2>
 
@@ -179,40 +190,48 @@
                             Servicio, profesional, fecha y hora.
                         </p>
                     </div>
+
                 </div>
 
 
                 <div class="cuadricula-detalle">
 
                     <div class="dato-detalle">
+
                         <span>Especialidad</span>
 
                         <strong>
                             {{ cita.especialidad.nombre }}
                         </strong>
+
                     </div>
 
 
                     <div class="dato-detalle">
+
                         <span>Servicio</span>
 
                         <strong>
                             {{ cita.servicio.nombre }}
                         </strong>
+
                     </div>
 
 
                     <div class="dato-detalle">
+
                         <span>Profesional</span>
 
                         <strong>
                             {{ cita.profesional.nombres }}
                             {{ cita.profesional.apellidos }}
                         </strong>
+
                     </div>
 
 
                     <div class="dato-detalle">
+
                         <span>Fecha y hora</span>
 
                         <strong>
@@ -220,6 +239,7 @@
                             ·
                             {{ cita.hora|time:"H:i" }}
                         </strong>
+
                     </div>
 
                 </div>
@@ -230,6 +250,7 @@
             <section class="panel-seccion">
 
                 <div class="cabecera-seccion">
+
                     <div>
                         <h2>Información del pago</h2>
 
@@ -237,35 +258,42 @@
                             Valores y comprobante de la reserva.
                         </p>
                     </div>
+
                 </div>
 
 
                 <div class="resumen-pago-detalle">
 
                     <div>
+
                         <span>Valor del servicio</span>
 
                         <strong>
                             ${{ cita.valor_servicio|floatformat:2 }}
                         </strong>
+
                     </div>
 
 
                     <div class="pago-destacado">
+
                         <span>Anticipo</span>
 
                         <strong>
                             ${{ cita.anticipo|floatformat:2 }}
                         </strong>
+
                     </div>
 
 
                     <div>
+
                         <span>Saldo pendiente</span>
 
                         <strong>
                             ${{ cita.saldo_pendiente|floatformat:2 }}
                         </strong>
+
                     </div>
 
                 </div>
@@ -274,24 +302,29 @@
                 <div class="cuadricula-detalle">
 
                     <div class="dato-detalle">
+
                         <span>Método de pago</span>
 
                         <strong>
                             {{ cita.get_metodo_pago_display }}
                         </strong>
+
                     </div>
 
 
                     <div class="dato-detalle">
+
                         <span>Estado del pago</span>
 
                         <strong>
                             {{ cita.get_estado_pago_display }}
                         </strong>
+
                     </div>
 
 
                     <div class="dato-detalle dato-completo">
+
                         <span>
                             Comprobante o referencia
                         </span>
@@ -299,6 +332,7 @@
                         <strong>
                             {{ cita.referencia_pago|default:"No registrado" }}
                         </strong>
+
                     </div>
 
                 </div>
@@ -313,6 +347,7 @@
             <section class="panel-seccion panel-acciones">
 
                 <div class="cabecera-seccion">
+
                     <div>
                         <h2>Administrar cita</h2>
 
@@ -320,7 +355,26 @@
                             Verifica el pago o cambia el estado.
                         </p>
                     </div>
+
                 </div>
+
+
+                {% if puede_reprogramarse %}
+
+                    <a
+                        href="{% url 'core:reprogramar_cita' cita.codigo %}"
+                        class="boton-accion accion-confirmar"
+                        style="
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            text-decoration: none;
+                        "
+                    >
+                        📅 Reprogramar cita
+                    </a>
+
+                {% endif %}
 
 
                 {% if cita.estado_pago == "PENDIENTE" %}
@@ -343,6 +397,7 @@
                         >
                             ✓ Verificar pago
                         </button>
+
                     </form>
 
 
@@ -361,9 +416,15 @@
                         <button
                             type="submit"
                             class="boton-accion accion-rechazar"
+                            onclick="
+                                return confirm(
+                                    '¿Seguro que deseas rechazar este pago?'
+                                );
+                            "
                         >
                             ✕ Rechazar pago
                         </button>
+
                     </form>
 
                 {% endif %}
@@ -389,6 +450,7 @@
                         >
                             Confirmar cita
                         </button>
+
                     </form>
 
                 {% endif %}
@@ -411,9 +473,15 @@
                         <button
                             type="submit"
                             class="boton-accion accion-completar"
+                            onclick="
+                                return confirm(
+                                    '¿La atención ya fue completada?'
+                                );
+                            "
                         >
                             Marcar como completada
                         </button>
+
                     </form>
 
                 {% endif %}
@@ -436,10 +504,31 @@
                         <button
                             type="submit"
                             class="boton-accion accion-cancelar"
+                            onclick="
+                                return confirm(
+                                    '¿Seguro que deseas cancelar esta cita?'
+                                );
+                            "
                         >
                             Cancelar cita
                         </button>
+
                     </form>
+
+                {% endif %}
+
+
+                {% if cita.estado == "CANCELADA" %}
+
+                    <div class="mensaje mensaje-error">
+                        Esta cita fue cancelada y ya no puede modificarse.
+                    </div>
+
+                {% elif cita.estado == "COMPLETADA" %}
+
+                    <div class="mensaje mensaje-success">
+                        Esta cita fue completada correctamente.
+                    </div>
 
                 {% endif %}
 

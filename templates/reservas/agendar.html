@@ -14,7 +14,7 @@
 
     <link
         rel="stylesheet"
-        href="{% static 'css/agendar.css' %}?v=11"
+        href="{% static 'css/agendar.css' %}?v=12"
     >
 
     <link
@@ -57,8 +57,8 @@
         <h1>Reserva tu cita</h1>
 
         <p>
-            Selecciona la especialidad, el profesional,
-            una fecha disponible y el horario que prefieras.
+            Selecciona la especialidad, el servicio,
+            el profesional, la fecha y el horario que prefieras.
         </p>
     </section>
 
@@ -146,6 +146,7 @@
             data-url-horarios="{% url 'reservas:api_horarios' %}"
 
             data-especialidad-inicial="{{ formulario.especialidad.value|default:'' }}"
+            data-servicio-inicial="{{ formulario.servicio.value|default:'' }}"
             data-profesional-inicial="{{ formulario.profesional.value|default:'' }}"
             data-fecha-inicial="{{ formulario.fecha.value|default:'' }}"
             data-hora-inicial="{{ formulario.hora.value|default:'' }}"
@@ -186,7 +187,7 @@
                         data-indicador="3"
                     >
                         <span>3</span>
-                        <small>Profesional</small>
+                        <small>Atención</small>
                     </button>
 
                     <button
@@ -235,12 +236,12 @@
                         {{ formulario.especialidad }}
                     </div>
 
-                    <div id="campo-profesional-real">
-                        {{ formulario.profesional }}
-                    </div>
-
                     <div id="campo-servicio-real">
                         {{ formulario.servicio }}
+                    </div>
+
+                    <div id="campo-profesional-real">
+                        {{ formulario.profesional }}
                     </div>
 
                     <div id="campo-fecha-real">
@@ -572,7 +573,7 @@
                     <div class="cabecera-paso">
 
                         <span class="cabecera-paso-icono">
-                            👔
+                            🧾
                         </span>
 
                         <div>
@@ -581,7 +582,7 @@
                             </span>
 
                             <h2>
-                                Selecciona un profesional
+                                Selecciona el servicio y profesional
                             </h2>
 
                             <p id="texto-especialidad-seleccionada">
@@ -589,6 +590,98 @@
                             </p>
                         </div>
 
+                    </div>
+
+
+                    <div class="cabecera-seleccion-interna">
+                        <div>
+                            <h3>1. Selecciona el servicio</h3>
+
+                            <p>
+                                El precio se mostrará en el resumen final.
+                            </p>
+                        </div>
+                    </div>
+
+
+                    <div
+                        class="tarjetas-profesionales"
+                        id="lista-servicios"
+                    >
+
+                        <div
+                            class="estado-vacio"
+                            id="estado-servicios"
+                        >
+                            <span>🧾</span>
+
+                            <strong>
+                                Selecciona una especialidad
+                            </strong>
+
+                            <p>
+                                Aquí aparecerán sus servicios disponibles.
+                            </p>
+                        </div>
+
+
+                        {% for servicio in servicios %}
+
+                            <button
+                                type="button"
+                                class="tarjeta-seleccion tarjeta-servicio oculto"
+                                data-especialidad-id="{{ servicio.especialidad_id }}"
+                                data-servicio-id="{{ servicio.id }}"
+                                data-servicio-nombre="{{ servicio.nombre }}"
+                                data-servicio-duracion="{{ servicio.duracion_minutos }}"
+                            >
+
+                                <span class="tarjeta-icono">
+                                    ✦
+                                </span>
+
+                                <span class="tarjeta-texto">
+
+                                    <strong>
+                                        {{ servicio.nombre }}
+                                    </strong>
+
+                                    <small>
+                                        {{ servicio.duracion_minutos }} minutos
+
+                                        {% if servicio.descripcion %}
+                                            · {{ servicio.descripcion|truncatechars:75 }}
+                                        {% endif %}
+                                    </small>
+
+                                </span>
+
+                                <span class="marca-seleccion">
+                                    ✓
+                                </span>
+
+                            </button>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    {% for error in formulario.servicio.errors %}
+                        <div class="error-bloque">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+
+                    <div class="cabecera-seleccion-interna">
+                        <div>
+                            <h3>2. Selecciona el profesional</h3>
+
+                            <p>
+                                Escoge quién realizará la atención.
+                            </p>
+                        </div>
                     </div>
 
 
@@ -736,8 +829,8 @@
                                     </strong>
 
                                     <p>
-                                        Selecciona un profesional
-                                        para consultar su agenda.
+                                        Selecciona un servicio
+                                        y un profesional.
                                     </p>
                                 </div>
 
@@ -912,6 +1005,14 @@
                             </div>
 
                             <div class="fila-resumen">
+                                <span>Servicio</span>
+
+                                <strong id="resumen-servicio">
+                                    Sin seleccionar
+                                </strong>
+                            </div>
+
+                            <div class="fila-resumen">
                                 <span>Profesional</span>
 
                                 <strong id="resumen-profesional">
@@ -1042,7 +1143,6 @@
                             {% endfor %}
 
 
-                            <!-- DATOS DINÁMICOS DEL PROFESIONAL -->
                             <section
                                 class="datos-transferencia oculto"
                                 id="datos-transferencia"
@@ -1178,7 +1278,6 @@
                             </div>
 
 
-                            <!-- SOLO PARA TRANSFERENCIA -->
                             <div
                                 id="aviso-transferencia"
                                 class="aviso-metodo-pago aviso-transferencia oculto"
@@ -1194,7 +1293,6 @@
                             </div>
 
 
-                            <!-- SOLO PARA TARJETA -->
                             <div
                                 id="aviso-tarjeta"
                                 class="aviso-metodo-pago aviso-tarjeta oculto"
@@ -1387,7 +1485,7 @@
 
 
 <script
-    src="{% static 'js/agendar.js' %}?v=10"
+    src="{% static 'js/agendar.js' %}?v=11"
 ></script>
 
 <script

@@ -30,4 +30,28 @@ urlpatterns = [
         views.actualizar_cita,
         name="actualizar_cita",
     ),
+
+    path(
+        "panel/citas/<uuid:codigo>/reprogramar/",
+        views.reprogramar_cita,
+        name="reprogramar_cita",
+    ),
+
+    path(
+        (
+            "panel/citas/<uuid:codigo>/"
+            "reprogramar/disponibilidad/"
+        ),
+        views.disponibilidad_reprogramacion,
+        name="disponibilidad_reprogramacion",
+    ),
+
+    path(
+        (
+            "panel/citas/<uuid:codigo>/"
+            "reprogramar/horarios/"
+        ),
+        views.horarios_reprogramacion,
+        name="horarios_reprogramacion",
+    ),
 ]

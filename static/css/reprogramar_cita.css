@@ -1,0 +1,484 @@
+.pagina-reprogramacion {
+    width: min(1050px, calc(100% - 32px));
+    margin: 32px auto 50px;
+}
+
+
+.cabecera-reprogramacion {
+    margin-bottom: 23px;
+}
+
+
+.cabecera-reprogramacion h1 {
+    font-size: clamp(26px, 4vw, 35px);
+}
+
+
+.cabecera-reprogramacion p {
+    margin-top: 8px;
+
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+
+.distribucion-reprogramacion {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1.1fr)
+        minmax(280px, 0.9fr);
+    gap: 20px;
+    align-items: start;
+}
+
+
+.calendario-reprogramacion,
+.horarios-reprogramacion {
+    min-height: 440px;
+}
+
+
+.calendario-cabecera {
+    margin-bottom: 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+
+.calendario-cabecera h3 {
+    font-size: 15px;
+}
+
+
+.boton-mes {
+    width: 37px;
+    height: 37px;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid #bae6fd;
+    border-radius: 10px;
+
+    background: #eaf7ff;
+    color: #0369a1;
+
+    cursor: pointer;
+
+    font-size: 22px;
+    font-weight: 900;
+}
+
+
+.boton-mes:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+
+.dias-semana,
+.calendario-dias {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 7px;
+}
+
+
+.dias-semana {
+    margin-bottom: 8px;
+}
+
+
+.dias-semana span {
+    color: #64748b;
+
+    font-size: 9px;
+    font-weight: 900;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+
+.dia-vacio {
+    min-height: 42px;
+}
+
+
+.dia-calendario {
+    min-height: 42px;
+
+    border: 1px solid transparent;
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 900;
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.dia-calendario.disponible {
+    border-color: #86efac;
+    background: #dcfce7;
+    color: #166534;
+}
+
+
+.dia-calendario.disponible:hover {
+    transform: translateY(-2px);
+    border-color: #22c55e;
+}
+
+
+.dia-calendario.separada {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+
+.dia-calendario.sin_atencion,
+.dia-calendario.pasada {
+    background: #f1f5f9;
+    color: #94a3b8;
+}
+
+
+.dia-calendario.seleccionada {
+    border-color: #0ea5e9;
+    background: #0ea5e9;
+    color: #ffffff;
+}
+
+
+.dia-calendario.fecha-actual {
+    box-shadow:
+        inset 0 0 0 2px #7c3aed;
+}
+
+
+.leyenda-calendario {
+    margin-top: 17px;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+
+.leyenda-calendario span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    color: #64748b;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+
+.leyenda-color {
+    width: 10px;
+    height: 10px;
+
+    display: inline-block;
+
+    border-radius: 3px;
+}
+
+
+.leyenda-color.disponible {
+    background: #86efac;
+}
+
+
+.leyenda-color.separada {
+    background: #fecaca;
+}
+
+
+.leyenda-color.sin-atencion {
+    background: #cbd5e1;
+}
+
+
+.leyenda-color.seleccionada {
+    background: #0ea5e9;
+}
+
+
+.calendario-vacio {
+    grid-column: 1 / -1;
+}
+
+
+.lista-horarios-reprogramacion {
+    display: grid;
+    grid-template-columns: repeat(
+        3,
+        minmax(0, 1fr)
+    );
+    gap: 9px;
+}
+
+
+.boton-horario-reprogramacion {
+    min-height: 40px;
+    padding: 8px;
+
+    border: 1px solid #bae6fd;
+    border-radius: 9px;
+
+    background: #eaf7ff;
+    color: #0369a1;
+
+    cursor: pointer;
+
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 900;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.boton-horario-reprogramacion:hover {
+    transform: translateY(-2px);
+}
+
+
+.boton-horario-reprogramacion.seleccionado {
+    border-color: #0ea5e9;
+    background: #0ea5e9;
+    color: #ffffff;
+}
+
+
+.resumen-reprogramacion {
+    margin-top: 20px;
+}
+
+
+.cuadricula-resumen-reprogramacion {
+    display: grid;
+    grid-template-columns: repeat(
+        2,
+        minmax(0, 1fr)
+    );
+    gap: 15px;
+}
+
+
+.bloque-resumen {
+    padding: 17px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+
+    background: #f8fafc;
+}
+
+
+.bloque-resumen-nuevo {
+    border-color: #bae6fd;
+    background: #f0f9ff;
+}
+
+
+.titulo-bloque-resumen {
+    display: inline-block;
+    margin-bottom: 13px;
+    padding: 5px 8px;
+
+    border-radius: 999px;
+
+    background: #e2e8f0;
+    color: #475569;
+
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+
+.bloque-resumen-nuevo
+.titulo-bloque-resumen {
+    background: #bae6fd;
+    color: #0369a1;
+}
+
+
+.dato-resumen {
+    padding: 10px 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    border-bottom: 1px solid #e2e8f0;
+}
+
+
+.dato-resumen:last-of-type {
+    border-bottom: 0;
+}
+
+
+.dato-resumen span {
+    color: #64748b;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+
+.dato-resumen strong {
+    color: #1e293b;
+    font-size: 11px;
+}
+
+
+.mensaje-cambio {
+    margin-top: 13px;
+    padding: 11px;
+
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+
+    border: 1px solid #bae6fd;
+    border-radius: 10px;
+
+    background: #ffffff;
+}
+
+
+.mensaje-cambio p {
+    color: #0369a1;
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+
+.acciones-reprogramacion {
+    margin-top: 20px;
+
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+
+.mensaje-validacion {
+    margin-top: 17px;
+    padding: 12px 14px;
+
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+
+    background: #fee2e2;
+    color: #991b1b;
+
+    font-size: 10px;
+    font-weight: 800;
+}
+
+
+.estado-cargando {
+    padding: 30px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+
+    color: #64748b;
+    text-align: center;
+}
+
+
+.cargador {
+    width: 24px;
+    height: 24px;
+
+    border: 3px solid #bae6fd;
+    border-top-color: #0ea5e9;
+    border-radius: 50%;
+
+    animation: girar 0.75s linear infinite;
+}
+
+
+@keyframes girar {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+.oculto {
+    display: none !important;
+}
+
+
+@media (max-width: 800px) {
+
+    .distribucion-reprogramacion,
+    .cuadricula-resumen-reprogramacion {
+        grid-template-columns: 1fr;
+    }
+
+    .calendario-reprogramacion,
+    .horarios-reprogramacion {
+        min-height: auto;
+    }
+
+}
+
+
+@media (max-width: 520px) {
+
+    .pagina-reprogramacion {
+        width: min(100% - 20px, 1050px);
+        margin-top: 20px;
+    }
+
+    .panel-seccion {
+        padding: 15px;
+    }
+
+    .dias-semana,
+    .calendario-dias {
+        gap: 4px;
+    }
+
+    .dia-calendario,
+    .dia-vacio {
+        min-height: 37px;
+    }
+
+    .lista-horarios-reprogramacion {
+        grid-template-columns: repeat(
+            2,
+            minmax(0, 1fr)
+        );
+    }
+
+    .acciones-reprogramacion {
+        flex-direction: column;
+    }
+
+    .acciones-reprogramacion .boton {
+        width: 100%;
+    }
+
+}
